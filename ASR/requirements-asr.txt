@@ -1,0 +1,8 @@
+# Kaggle already provides torch/torchaudio (do NOT reinstall). Only add what is missing.
+transformers>=4.40
+accelerate>=0.30
+jiwer>=3.0
+soundfile>=0.12
+pandas
+numpy
+matplotlib
