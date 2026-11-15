@@ -1,0 +1,85 @@
+{
+  "seed": 42,
+  "algorithm": "sorted unique speaker ids -> numpy.random.RandomState(seed).permutation -> first 6 train, next 2 val, last 2 test",
+  "manifest_fingerprint": "ed2b6fbf950495acc8c8cb88dd641c2f8b75331c8351fd1e4c5091a1a4ddc9de",
+  "target_sizes": {
+    "train": 6,
+    "val": 2,
+    "test": 2
+  },
+  "subsets": {
+    "train": {
+      "speakers": [
+        "S01",
+        "S02",
+        "S03",
+        "S06",
+        "S08",
+        "S09"
+      ],
+      "n_utterances": 446,
+      "total_duration_sec": 4021.51,
+      "quality_counts": {
+        "Good": 443,
+        "Acceptable": 3
+      },
+      "native_status_counts": {
+        "Native": 314,
+        "Non-native": 132
+      },
+      "utterances_per_speaker": {
+        "S01": 63,
+        "S02": 69,
+        "S03": 88,
+        "S06": 62,
+        "S08": 103,
+        "S09": 61
+      }
+    },
+    "val": {
+      "speakers": [
+        "S05",
+        "S10"
+      ],
+      "n_utterances": 172,
+      "total_duration_sec": 1684.58,
+      "quality_counts": {
+        "Good": 172
+      },
+      "native_status_counts": {
+        "Native": 172
+      },
+      "utterances_per_speaker": {
+        "S05": 66,
+        "S10": 106
+      }
+    },
+    "test": {
+      "speakers": [
+        "S04",
+        "S07"
+      ],
+      "n_utterances": 132,
+      "total_duration_sec": 1282.64,
+      "quality_counts": {
+        "Acceptable": 68,
+        "Good": 64
+      },
+      "native_status_counts": {
+        "Native": 132
+      },
+      "utterances_per_speaker": {
+        "S04": 69,
+        "S07": 63
+      }
+    }
+  },
+  "normalization_version": "v1",
+  "n_eligible": 750,
+  "excluded_files": [],
+  "needs_review_files": [
+    "S07_T01_008.wav",
+    "S07_T03_006.wav"
+  ],
+  "note": "Random speaker-level split; no balancing by gender/native status/noise was applied."
+}
