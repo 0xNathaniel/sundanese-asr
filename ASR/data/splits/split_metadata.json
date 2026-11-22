@@ -1,82 +1,735 @@
 {
   "seed": 42,
-  "algorithm": "sorted unique speaker ids -> numpy.random.RandomState(seed).permutation -> first 6 train, next 2 val, last 2 test",
-  "manifest_fingerprint": "ed2b6fbf950495acc8c8cb88dd641c2f8b75331c8351fd1e4c5091a1a4ddc9de",
+  "algorithm": "sorted unique speaker ids -> numpy.random.RandomState(seed).permutation -> first 13 train, next 4 val, last 4 test",
+  "manifest_fingerprint": "c3abac0a44fee99877af0b28e152a8e392029cf9ddbb4e5dd399cf3d3fdd8832",
   "target_sizes": {
-    "train": 6,
-    "val": 2,
-    "test": 2
+    "train": 13,
+    "val": 4,
+    "test": 4
   },
   "subsets": {
     "train": {
       "speakers": [
+        "G04_S01",
+        "G04_S02",
+        "G04_S03",
+        "G04_S04",
+        "G04_S06",
+        "G04_S09",
+        "G04_S10",
         "S01",
-        "S02",
         "S03",
+        "S05",
         "S06",
-        "S08",
-        "S09"
+        "S07",
+        "S08"
       ],
-      "n_utterances": 446,
-      "total_duration_sec": 4021.51,
+      "n_utterances": 1416,
+      "total_duration_sec": 7658.45,
       "quality_counts": {
-        "Good": 443,
-        "Acceptable": 3
+        "Good": 1316,
+        "Acceptable": 100
       },
       "native_status_counts": {
-        "Native": 314,
-        "Non-native": 132
+        "Unknown": 971,
+        "Native": 382,
+        "Non-native": 63
+      },
+      "source_corpus_counts": {
+        "Korpus_Bahasa_Sunda_G04": 971,
+        "Korpus_Bahasa_Sunda": 445
       },
       "utterances_per_speaker": {
+        "G04_S01": 114,
+        "G04_S02": 48,
+        "G04_S03": 83,
+        "G04_S04": 106,
+        "G04_S06": 132,
+        "G04_S09": 362,
+        "G04_S10": 126,
         "S01": 63,
-        "S02": 69,
         "S03": 88,
+        "S05": 66,
         "S06": 62,
-        "S08": 103,
-        "S09": 61
+        "S07": 63,
+        "S08": 103
       }
     },
     "val": {
       "speakers": [
-        "S05",
+        "G04_S05",
+        "G04_S08",
+        "S02",
         "S10"
       ],
-      "n_utterances": 172,
-      "total_duration_sec": 1684.58,
+      "n_utterances": 442,
+      "total_duration_sec": 2920.27,
       "quality_counts": {
-        "Good": 172
+        "Good": 440,
+        "Acceptable": 2
       },
       "native_status_counts": {
-        "Native": 172
+        "Unknown": 267,
+        "Native": 106,
+        "Non-native": 69
+      },
+      "source_corpus_counts": {
+        "Korpus_Bahasa_Sunda_G04": 267,
+        "Korpus_Bahasa_Sunda": 175
       },
       "utterances_per_speaker": {
-        "S05": 66,
+        "G04_S05": 84,
+        "G04_S08": 183,
+        "S02": 69,
         "S10": 106
       }
     },
     "test": {
       "speakers": [
+        "G04_S07",
+        "G04_S11",
         "S04",
-        "S07"
+        "S09"
       ],
-      "n_utterances": 132,
-      "total_duration_sec": 1282.64,
+      "n_utterances": 327,
+      "total_duration_sec": 2123.73,
       "quality_counts": {
-        "Acceptable": 68,
-        "Good": 64
+        "Good": 278,
+        "Acceptable": 49
       },
       "native_status_counts": {
-        "Native": 132
+        "Unknown": 197,
+        "Native": 130
+      },
+      "source_corpus_counts": {
+        "Korpus_Bahasa_Sunda_G04": 197,
+        "Korpus_Bahasa_Sunda": 130
       },
       "utterances_per_speaker": {
+        "G04_S07": 115,
+        "G04_S11": 82,
         "S04": 69,
-        "S07": 63
+        "S09": 61
       }
     }
   },
   "normalization_version": "v1",
-  "n_eligible": 750,
-  "excluded_files": [],
+  "n_eligible": 2185,
+  "source_corpus_counts": {
+    "Korpus_Bahasa_Sunda_G04": 1435,
+    "Korpus_Bahasa_Sunda": 750
+  },
+  "excluded_files": [
+    {
+      "file": "G04_S11_T02_0020.wav",
+      "source_corpus": "Korpus_Bahasa_Sunda_G04",
+      "reasons": "kualitas=Reject"
+    },
+    {
+      "file": "G04_S11_T02_0021.wav",
+      "source_corpus": "Korpus_Bahasa_Sunda_G04",
+      "reasons": "kualitas=Reject"
+    },
+    {
+      "file": "G04_S11_T02_0022.wav",
+      "source_corpus": "Korpus_Bahasa_Sunda_G04",
+      "reasons": "kualitas=Reject"
+    },
+    {
+      "file": "G04_S11_T02_0023.wav",
+      "source_corpus": "Korpus_Bahasa_Sunda_G04",
+      "reasons": "kualitas=Reject"
+    },
+    {
+      "file": "G04_S11_T02_0024.wav",
+      "source_corpus": "Korpus_Bahasa_Sunda_G04",
+      "reasons": "kualitas=Reject"
+    },
+    {
+      "file": "G04_S11_T02_0025.wav",
+      "source_corpus": "Korpus_Bahasa_Sunda_G04",
+      "reasons": "kualitas=Reject"
+    },
+    {
+      "file": "G04_S11_T02_0026.wav",
+      "source_corpus": "Korpus_Bahasa_Sunda_G04",
+      "reasons": "kualitas=Reject"
+    },
+    {
+      "file": "G04_S11_T02_0027.wav",
+      "source_corpus": "Korpus_Bahasa_Sunda_G04",
+      "reasons": "kualitas=Reject"
+    },
+    {
+      "file": "G04_S11_T02_0028.wav",
+      "source_corpus": "Korpus_Bahasa_Sunda_G04",
+      "reasons": "kualitas=Reject"
+    },
+    {
+      "file": "G04_S11_T02_0029.wav",
+      "source_corpus": "Korpus_Bahasa_Sunda_G04",
+      "reasons": "kualitas=Reject"
+    },
+    {
+      "file": "G04_S11_T02_0030.wav",
+      "source_corpus": "Korpus_Bahasa_Sunda_G04",
+      "reasons": "kualitas=Reject"
+    },
+    {
+      "file": "G04_S11_T02_0031.wav",
+      "source_corpus": "Korpus_Bahasa_Sunda_G04",
+      "reasons": "kualitas=Reject"
+    },
+    {
+      "file": "G04_S11_T02_0032.wav",
+      "source_corpus": "Korpus_Bahasa_Sunda_G04",
+      "reasons": "kualitas=Reject"
+    },
+    {
+      "file": "G04_S11_T02_0033.wav",
+      "source_corpus": "Korpus_Bahasa_Sunda_G04",
+      "reasons": "kualitas=Reject"
+    },
+    {
+      "file": "G04_S11_T02_0034.wav",
+      "source_corpus": "Korpus_Bahasa_Sunda_G04",
+      "reasons": "kualitas=Reject"
+    },
+    {
+      "file": "G04_S11_T02_0035.wav",
+      "source_corpus": "Korpus_Bahasa_Sunda_G04",
+      "reasons": "kualitas=Reject"
+    },
+    {
+      "file": "G04_S11_T02_0036.wav",
+      "source_corpus": "Korpus_Bahasa_Sunda_G04",
+      "reasons": "kualitas=Reject"
+    },
+    {
+      "file": "G04_S11_T02_0037.wav",
+      "source_corpus": "Korpus_Bahasa_Sunda_G04",
+      "reasons": "kualitas=Reject"
+    },
+    {
+      "file": "G04_S11_T02_0038.wav",
+      "source_corpus": "Korpus_Bahasa_Sunda_G04",
+      "reasons": "kualitas=Reject"
+    },
+    {
+      "file": "G04_S11_T02_0039.wav",
+      "source_corpus": "Korpus_Bahasa_Sunda_G04",
+      "reasons": "kualitas=Reject"
+    },
+    {
+      "file": "G04_S11_T02_0040.wav",
+      "source_corpus": "Korpus_Bahasa_Sunda_G04",
+      "reasons": "kualitas=Reject"
+    }
+  ],
+  "g04_annotation_name_fixes": [
+    {
+      "annotation_file": "S02_T05_140.WAV",
+      "metadata_file": "S02_T06_140.WAV"
+    },
+    {
+      "annotation_file": "S02_T05_141.WAV",
+      "metadata_file": "S02_T06_141.WAV"
+    },
+    {
+      "annotation_file": "S01_T05_142.WAV",
+      "metadata_file": "S01_T06_142.WAV"
+    },
+    {
+      "annotation_file": "S01_T05_143.WAV",
+      "metadata_file": "S01_T06_143.WAV"
+    },
+    {
+      "annotation_file": "S01_T05_144.WAV",
+      "metadata_file": "S01_T06_144.WAV"
+    },
+    {
+      "annotation_file": "S02_T05_145.WAV",
+      "metadata_file": "S02_T06_145.WAV"
+    },
+    {
+      "annotation_file": "S02_T06_147.WAV",
+      "metadata_file": "S02_T07_147.WAV"
+    },
+    {
+      "annotation_file": "S01_T06_148.WAV",
+      "metadata_file": "S01_T07_148.WAV"
+    },
+    {
+      "annotation_file": "S01_T06_149.WAV",
+      "metadata_file": "S01_T07_149.WAV"
+    },
+    {
+      "annotation_file": "S01_T06_150.WAV",
+      "metadata_file": "S01_T07_150.WAV"
+    },
+    {
+      "annotation_file": "S01_T06_151.WAV",
+      "metadata_file": "S01_T07_151.WAV"
+    },
+    {
+      "annotation_file": "S01_T06_152.WAV",
+      "metadata_file": "S01_T07_152.WAV"
+    },
+    {
+      "annotation_file": "S02_T06_153.WAV",
+      "metadata_file": "S02_T07_153.WAV"
+    },
+    {
+      "annotation_file": "S01_T06_154.WAV",
+      "metadata_file": "S01_T07_154.WAV"
+    },
+    {
+      "annotation_file": "S01_T06_155.WAV",
+      "metadata_file": "S01_T07_155.WAV"
+    },
+    {
+      "annotation_file": "S01_T06_156.WAV",
+      "metadata_file": "S01_T07_156.WAV"
+    },
+    {
+      "annotation_file": "S02_T06_157.WAV",
+      "metadata_file": "S02_T07_157.WAV"
+    },
+    {
+      "annotation_file": "S01_T06_158.WAV",
+      "metadata_file": "S01_T07_158.WAV"
+    },
+    {
+      "annotation_file": "S01_T06_159.WAV",
+      "metadata_file": "S01_T07_159.WAV"
+    },
+    {
+      "annotation_file": "S01_T06_160.WAV",
+      "metadata_file": "S01_T07_160.WAV"
+    },
+    {
+      "annotation_file": "S01_T06_161.WAV",
+      "metadata_file": "S01_T07_161.WAV"
+    },
+    {
+      "annotation_file": "S01_T06_162.WAV",
+      "metadata_file": "S01_T07_162.WAV"
+    },
+    {
+      "annotation_file": "S01_T06_163.WAV",
+      "metadata_file": "S01_T07_163.WAV"
+    },
+    {
+      "annotation_file": "S01_T06_164.WAV",
+      "metadata_file": "S01_T07_164.WAV"
+    },
+    {
+      "annotation_file": "S02_T06_165.WAV",
+      "metadata_file": "S02_T07_165.WAV"
+    },
+    {
+      "annotation_file": "S02_T06_166.WAV",
+      "metadata_file": "S02_T07_166.WAV"
+    },
+    {
+      "annotation_file": "S01_T06_167.WAV",
+      "metadata_file": "S01_T07_167.WAV"
+    },
+    {
+      "annotation_file": "S01_T06_168.WAV",
+      "metadata_file": "S01_T07_168.WAV"
+    },
+    {
+      "annotation_file": "S01_T06_169.WAV",
+      "metadata_file": "S01_T07_169.WAV"
+    },
+    {
+      "annotation_file": "S01_T06_170.WAV",
+      "metadata_file": "S01_T07_170.WAV"
+    },
+    {
+      "annotation_file": "S01_T06_171.WAV",
+      "metadata_file": "S01_T07_171.WAV"
+    },
+    {
+      "annotation_file": "S03_T06_074.WAV",
+      "metadata_file": "S03_T07_074.WAV"
+    },
+    {
+      "annotation_file": "S03_T06_075.WAV",
+      "metadata_file": "S03_T07_075.WAV"
+    },
+    {
+      "annotation_file": "S03_T06_076.WAV",
+      "metadata_file": "S03_T07_076.WAV"
+    },
+    {
+      "annotation_file": "S03_T06_077.WAV",
+      "metadata_file": "S03_T07_077.WAV"
+    },
+    {
+      "annotation_file": "S03_T06_078.WAV",
+      "metadata_file": "S03_T07_078.WAV"
+    },
+    {
+      "annotation_file": "S03_T06_079.WAV",
+      "metadata_file": "S03_T07_079.WAV"
+    },
+    {
+      "annotation_file": "S03_T06_080.WAV",
+      "metadata_file": "S03_T07_080.WAV"
+    },
+    {
+      "annotation_file": "S03_T06_081.WAV",
+      "metadata_file": "S03_T07_081.WAV"
+    },
+    {
+      "annotation_file": "S03_T06_082.WAV",
+      "metadata_file": "S03_T07_082.WAV"
+    },
+    {
+      "annotation_file": "S03_T06_083.WAV",
+      "metadata_file": "S03_T07_083.WAV"
+    },
+    {
+      "annotation_file": "S03_T06_084.WAV",
+      "metadata_file": "S03_T07_084.WAV"
+    },
+    {
+      "annotation_file": "S03_T06_085.WAV",
+      "metadata_file": "S03_T07_085.WAV"
+    },
+    {
+      "annotation_file": "S03_T06_086.WAV",
+      "metadata_file": "S03_T07_086.WAV"
+    },
+    {
+      "annotation_file": "S03_T06_087.WAV",
+      "metadata_file": "S03_T07_087.WAV"
+    }
+  ],
+  "metadata_duration_mismatches": [
+    {
+      "file": "G04_S05_T01_009.WAV",
+      "metadata": 4.22,
+      "audio": 5.145
+    },
+    {
+      "file": "G04_S05_T01_010.WAV",
+      "metadata": 5.145,
+      "audio": 7.2775
+    },
+    {
+      "file": "G04_S05_T01_013.WAV",
+      "metadata": 7.13,
+      "audio": 3.4825
+    },
+    {
+      "file": "G04_S05_T01_014.WAV",
+      "metadata": 7.415,
+      "audio": 7.09
+    },
+    {
+      "file": "G04_S05_T01_015.WAV",
+      "metadata": 6.71,
+      "audio": 7.8075
+    },
+    {
+      "file": "G04_S05_T01_016.WAV",
+      "metadata": 4.8475,
+      "audio": 7.6675
+    },
+    {
+      "file": "G04_S05_T01_017.WAV",
+      "metadata": 7.035,
+      "audio": 6.25
+    },
+    {
+      "file": "G04_S05_T02_018.WAV",
+      "metadata": 3.4825,
+      "audio": 7.1125
+    },
+    {
+      "file": "G04_S05_T02_020.WAV",
+      "metadata": 7.8075,
+      "audio": 5.8225
+    },
+    {
+      "file": "G04_S05_T02_021.WAV",
+      "metadata": 7.6675,
+      "audio": 5.6375
+    },
+    {
+      "file": "G04_S05_T02_022.WAV",
+      "metadata": 6.25,
+      "audio": 5.7325
+    },
+    {
+      "file": "G04_S05_T02_023.WAV",
+      "metadata": 7.1125,
+      "audio": 5.7425
+    },
+    {
+      "file": "G04_S05_T02_024.WAV",
+      "metadata": 7.2175,
+      "audio": 7.895
+    },
+    {
+      "file": "G04_S05_T02_025.WAV",
+      "metadata": 5.8225,
+      "audio": 7.6
+    },
+    {
+      "file": "G04_S05_T02_026.WAV",
+      "metadata": 5.6375,
+      "audio": 7.3875
+    },
+    {
+      "file": "G04_S05_T02_027.WAV",
+      "metadata": 5.7325,
+      "audio": 7.1275
+    },
+    {
+      "file": "G04_S05_T02_028.WAV",
+      "metadata": 5.7425,
+      "audio": 7.08
+    },
+    {
+      "file": "G04_S05_T02_029.WAV",
+      "metadata": 7.895,
+      "audio": 7.085
+    },
+    {
+      "file": "G04_S05_T02_030.WAV",
+      "metadata": 7.6,
+      "audio": 7.165
+    },
+    {
+      "file": "G04_S05_T02_031.WAV",
+      "metadata": 7.3875,
+      "audio": 6.97
+    },
+    {
+      "file": "G04_S05_T02_032.WAV",
+      "metadata": 7.1275,
+      "audio": 7.995
+    },
+    {
+      "file": "G04_S05_T02_033.WAV",
+      "metadata": 7.08,
+      "audio": 8.0
+    },
+    {
+      "file": "G04_S05_T02_034.WAV",
+      "metadata": 7.085,
+      "audio": 7.985
+    },
+    {
+      "file": "G04_S05_T02_035.WAV",
+      "metadata": 7.165,
+      "audio": 8.0
+    },
+    {
+      "file": "G04_S05_T02_036.WAV",
+      "metadata": 6.97,
+      "audio": 7.92
+    },
+    {
+      "file": "G04_S05_T02_037.WAV",
+      "metadata": 7.7675,
+      "audio": 6.28
+    },
+    {
+      "file": "G04_S05_T02_038.WAV",
+      "metadata": 7.385,
+      "audio": 6.19
+    },
+    {
+      "file": "G04_S05_T02_039.WAV",
+      "metadata": 7.535,
+      "audio": 7.8975
+    },
+    {
+      "file": "G04_S05_T02_040.WAV",
+      "metadata": 6.8525,
+      "audio": 7.3475
+    },
+    {
+      "file": "G04_S05_T02_042.WAV",
+      "metadata": 7.995,
+      "audio": 7.365
+    },
+    {
+      "file": "G04_S05_T04_045.WAV",
+      "metadata": 8.0,
+      "audio": 7.065
+    },
+    {
+      "file": "G04_S05_T04_046.WAV",
+      "metadata": 7.92,
+      "audio": 7.14
+    },
+    {
+      "file": "G04_S05_T04_047.WAV",
+      "metadata": 6.28,
+      "audio": 5.86
+    },
+    {
+      "file": "G04_S05_T04_049.WAV",
+      "metadata": 7.8975,
+      "audio": 7.555
+    },
+    {
+      "file": "G04_S05_T04_050.WAV",
+      "metadata": 7.3475,
+      "audio": 8.0
+    },
+    {
+      "file": "G04_S05_T04_051.WAV",
+      "metadata": 7.425,
+      "audio": 2.49
+    },
+    {
+      "file": "G04_S05_T04_052.WAV",
+      "metadata": 7.985,
+      "audio": 7.095
+    },
+    {
+      "file": "G04_S05_T04_054.WAV",
+      "metadata": 7.99,
+      "audio": 7.685
+    },
+    {
+      "file": "G04_S05_T04_057.WAV",
+      "metadata": 7.31,
+      "audio": 7.995
+    },
+    {
+      "file": "G04_S05_T04_058.WAV",
+      "metadata": 7.8875,
+      "audio": 6.99
+    },
+    {
+      "file": "G04_S05_T04_059.WAV",
+      "metadata": 7.065,
+      "audio": 4.6275
+    },
+    {
+      "file": "G04_S05_T04_060.WAV",
+      "metadata": 7.14,
+      "audio": 4.7475
+    },
+    {
+      "file": "G04_S05_T05_061.WAV",
+      "metadata": 5.86,
+      "audio": 7.875
+    },
+    {
+      "file": "G04_S05_T05_062.WAV",
+      "metadata": 6.015,
+      "audio": 7.3925
+    },
+    {
+      "file": "G04_S05_T05_063.WAV",
+      "metadata": 7.555,
+      "audio": 7.0075
+    },
+    {
+      "file": "G04_S05_T05_064.WAV",
+      "metadata": 8.0,
+      "audio": 6.795
+    },
+    {
+      "file": "G04_S05_T05_065.WAV",
+      "metadata": 2.49,
+      "audio": 5.51
+    },
+    {
+      "file": "G04_S05_T05_066.WAV",
+      "metadata": 7.095,
+      "audio": 6.45
+    },
+    {
+      "file": "G04_S05_T05_067.WAV",
+      "metadata": 7.31,
+      "audio": 7.815
+    },
+    {
+      "file": "G04_S05_T05_068.WAV",
+      "metadata": 7.685,
+      "audio": 7.995
+    },
+    {
+      "file": "G04_S05_T05_069.WAV",
+      "metadata": 6.69,
+      "audio": 6.12
+    },
+    {
+      "file": "G04_S05_T05_070.WAV",
+      "metadata": 7.9875,
+      "audio": 3.76
+    },
+    {
+      "file": "G04_S05_T05_072.WAV",
+      "metadata": 7.995,
+      "audio": 4.9275
+    },
+    {
+      "file": "G04_S05_T05_073.WAV",
+      "metadata": 6.99,
+      "audio": 7.9925
+    },
+    {
+      "file": "G04_S05_T05_074.WAV",
+      "metadata": 4.6275,
+      "audio": 7.985
+    },
+    {
+      "file": "G04_S05_T05_075.WAV",
+      "metadata": 4.7475,
+      "audio": 8.0
+    },
+    {
+      "file": "G04_S05_T05_076.WAV",
+      "metadata": 7.875,
+      "audio": 6.9775
+    },
+    {
+      "file": "G04_S05_T05_077.WAV",
+      "metadata": 3.545,
+      "audio": 7.125
+    },
+    {
+      "file": "G04_S05_T05_078.WAV",
+      "metadata": 7.3925,
+      "audio": 7.03
+    },
+    {
+      "file": "G04_S05_T06_079.WAV",
+      "metadata": 7.0075,
+      "audio": 6.6625
+    },
+    {
+      "file": "G04_S05_T06_080.WAV",
+      "metadata": 6.795,
+      "audio": 7.4575
+    },
+    {
+      "file": "G04_S05_T06_081.WAV",
+      "metadata": 7.0575,
+      "audio": 7.6575
+    },
+    {
+      "file": "G04_S05_T06_082.WAV",
+      "metadata": 7.3275,
+      "audio": 7.63
+    },
+    {
+      "file": "G04_S05_T06_084.WAV",
+      "metadata": 5.51,
+      "audio": 7.53
+    }
+  ],
   "needs_review_files": [
     "S07_T01_008.wav",
     "S07_T03_006.wav"

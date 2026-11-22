@@ -1,13 +1,15 @@
 """
-Menyiapkan korpus bahasa Sunda untuk eksperimen ASR.
+Menyiapkan korpus bahasa Sunda kelompok kami dan kelompok G04 untuk eksperimen ASR.
 Berkas korpus sumber hanya dibaca dan tidak pernah diubah.
 
 Tahapan yang dilakukan:
-1. Menggabungkan anotasi dan metadata berdasarkan nama berkas audio.
-2. Memvalidasi audio dan transkripsi setiap ujaran.
-3. Menormalisasi transkripsi dengan kebijakan yang sama untuk kedua model.
-4. Membagi penutur secara acak dengan seed 42 menjadi 6 train, 2 val, dan 2 test.
-5. Menyimpan manifes, CSV pembagian data, dan metadata pembagian.
+1. Menggabungkan anotasi dan metadata setiap korpus berdasarkan nama berkas audio.
+2. Memperbaiki nama berkas anotasi G04 yang kode topiknya tidak cocok dengan metadata.
+3. Memberi awalan G04 pada ID penutur dan nama berkas G04 agar tidak bentrok.
+4. Memvalidasi audio dan transkripsi setiap ujaran.
+5. Menormalisasi transkripsi dengan kebijakan yang sama untuk semua korpus dan kedua model.
+6. Membagi penutur secara acak dengan seed 42 menjadi 13 train, 4 val, dan 4 test.
+7. Menyimpan manifes, CSV pembagian data, dan metadata pembagian.
 
 Aturan normalisasi:
 1. Teks diubah ke bentuk NFC dan huruf kecil.
@@ -30,11 +32,17 @@ import pandas as pd
 import soundfile as sf
 
 ASR_ROOT = Path(__file__).resolve().parents[1]
-CORPUS_ROOT = ASR_ROOT.parent / "Korpus_Bahasa_Sunda"
+REPO_ROOT = ASR_ROOT.parent
+MAIN_CORPUS = "Korpus_Bahasa_Sunda"
+G04_CORPUS = "Korpus_Bahasa_Sunda_G04"
 SEED = 42
-SIZES = {"train": 6, "val": 2, "test": 2}
+SIZES = {"train": 13, "val": 4, "test": 4}
 ALGORITHM = ("sorted unique speaker ids -> numpy.random.RandomState(seed).permutation "
-             "-> first 6 train, next 2 val, last 2 test")
+             "-> first 13 train, next 4 val, last 4 test")
+# Audio 48 kHz diterima di sini dan diturunkan ke 16 kHz saat ekspor.
+ALLOWED_SAMPLE_RATES = {16000, 48000}
+# wav2vec 2.0 menghasilkan satu frame setiap 20 ms.
+FRAMES_PER_SECOND = 50
 
 NORMALIZATION_VERSION = "v1"
 ALLOWED_CHARS = set("abcdefghijklmnopqrstuvwxyzé ")
@@ -42,13 +50,14 @@ REMOVED_TAGS = {"ee", "ee..", "noise", "overlap", "s"}
 REVIEW_TAGS = {"unclear"}
 DIGITS = {"0": "nol", "1": "hiji", "2": "dua", "3": "tilu", "4": "opat",
           "5": "lima", "6": "genep", "7": "tujuh", "8": "dalapan", "9": "salapan"}
-# Satu-satunya token gabungan huruf dan angka di korpus sehingga bentuk lisannya ditetapkan secara eksplisit.
-SPOKEN_FORMS = {"s2": "es dua"}
+# Token yang tidak tercakup aturan angka 0 sampai 99 sehingga bentuk lisannya ditetapkan secara eksplisit.
+SPOKEN_FORMS = {"s2": "es dua", "2023": "dua rebu dua puluh tilu"}
 TAG_RE = re.compile(r"\[([^\]]*)\]")
 NUMBER_RE = re.compile(r"(?<![^\W\d_])\d+(?![^\W\d_])")
 
-MANIFEST_COLUMNS = ["file", "audio_path", "speaker_id", "transcription_original", "transcription_normalized",
-                    "needs_review", "duration", "quality", "native_status", "topic", "split"]
+MANIFEST_COLUMNS = ["file", "source_corpus", "source_path", "audio_path", "speaker_id", "transcription_original",
+                    "transcription_normalized", "needs_review", "duration", "sample_rate", "quality",
+                    "native_status", "topic", "split"]
 ELIGIBLE_QUALITY = {"Good", "Acceptable"}
 # Memperbaiki salah ketik pada metadata hanya di manifes tanpa mengubah berkas sumber
 NATIVE_FIX = {"Non--native": "Non-native"}
@@ -100,59 +109,152 @@ def normalize_transcript(raw: str):
     return text, needs_review
 
 
-def build_manifest(corpus_root: Path):
-    """Menggabungkan anotasi dan metadata berdasarkan File, menormalisasi teks, lalu memvalidasi."""
-    ann = pd.read_csv(corpus_root / "annotation" / "annotation.csv")
-    meta = pd.read_csv(corpus_root / "metadata" / "metadata.csv")
-    for name, df in (("annotation", ann), ("metadata", meta)):
-        if not df["File"].is_unique:
-            raise ValueError(f"{name}: nama berkas audio duplikat: {df['File'][df['File'].duplicated()].tolist()}")
-    if set(ann["File"]) != set(meta["File"]):
-        raise ValueError(f"File anotasi dan metadata tidak cocok: hanya-anotasi={sorted(set(ann['File']) - set(meta['File']))[:5]} "
-                         f"hanya-metadata={sorted(set(meta['File']) - set(ann['File']))[:5]}")
-    df = ann.merge(meta, on="File", suffixes=("_ann", "_meta"), validate="one_to_one")
-    if (df["Speaker_ann"] != df["Speaker_meta"]).any():
-        raise ValueError("Penutur berbeda antara anotasi dan metadata untuk: "
-                         f"{df.loc[df['Speaker_ann'] != df['Speaker_meta'], 'File'].tolist()[:5]}")
+def audio_problem(path: Path):
+    """Mengembalikan alasan penolakan audio, atau None bila audio layak dipakai."""
+    if not path.exists():
+        return "berkas audio tidak ada"
+    info = sf.info(str(path))
+    if info.frames == 0:
+        return "audio kosong"
+    if info.samplerate not in ALLOWED_SAMPLE_RATES or info.channels != 1 or info.subtype != "PCM_16":
+        return f"format salah sr={info.samplerate} ch={info.channels} {info.subtype}"
+    return None
 
-    rows, excluded = [], []
-    for r in df.itertuples():
+
+def ctc_feasible(text: str, duration: float) -> bool:
+    """CTC hanya dapat memetakan audio ke label bila jumlah frame cukup untuk seluruh karakter dan blank pemisah huruf kembar."""
+    repeats = sum(1 for x, y in zip(text, text[1:]) if x == y)
+    return len(text) + repeats <= int(duration * FRAMES_PER_SECOND)
+
+
+def make_rows(records, repo_root: Path):
+    """Memvalidasi dan menormalisasi ujaran dari semua korpus dengan aturan yang sama.
+
+    Durasi diambil dari audio karena durasi di metadata G04 S05 tertukar antar baris.
+    Selisih dengan metadata dicatat tetapi tidak membuat ujaran dikecualikan.
+    """
+    rows, excluded, duration_mismatches = [], [], []
+    for r in records:
         reasons = []
-        if r.Quality not in ELIGIBLE_QUALITY:
-            reasons.append(f"kualitas={r.Quality}")
-        if not isinstance(r.Transcription, str) or not r.Transcription.strip():
+        if r["quality"] not in ELIGIBLE_QUALITY:
+            reasons.append(f"kualitas={r['quality']}")
+        raw = r["transcription_original"]
+        if not isinstance(raw, str) or not raw.strip():
             reasons.append("transkripsi kosong")
-        if not str(r.Speaker_ann).startswith("S"):
-            reasons.append("ID penutur tidak valid")
-        rel = f"audio/{r.Speaker_ann}/{r.File}"
-        text, needs_review = "", False
+        text, needs_review, sample_rate = "", False, None
         if not reasons:
-            text, needs_review = normalize_transcript(r.Transcription)
+            text, needs_review = normalize_transcript(raw)
             if not text:
                 reasons.append("kosong setelah normalisasi")
-            path = corpus_root / rel
-            if not path.exists():
-                reasons.append("berkas audio tidak ada")
+            problem = audio_problem(repo_root / r["source_path"])
+            if problem:
+                reasons.append(problem)
             else:
-                info = sf.info(str(path))
-                if info.frames == 0:
-                    reasons.append("audio kosong")
-                elif info.samplerate != 16000 or info.channels != 1 or info.subtype != "PCM_16":
-                    reasons.append(f"format salah sr={info.samplerate} ch={info.channels} {info.subtype}")
-                elif abs(info.frames / info.samplerate - float(r.Duration)) > 0.2:
-                    reasons.append(f"durasi tidak cocok metadata={r.Duration} aktual={info.frames / info.samplerate:.2f}")
+                info = sf.info(str(repo_root / r["source_path"]))
+                sample_rate = info.samplerate
+                actual = round(info.frames / info.samplerate, 4)
+                if abs(actual - r["duration"]) > 0.2:
+                    duration_mismatches.append({"file": r["file"], "metadata": r["duration"], "audio": actual})
+                r = {**r, "duration": actual}
+                if text and not ctc_feasible(text, actual):
+                    reasons.append("transkripsi terlalu panjang untuk durasi audio")
         if reasons:
-            excluded.append({"file": r.File, "reasons": "; ".join(reasons)})
+            excluded.append({"file": r["file"], "source_corpus": r["source_corpus"], "reasons": "; ".join(reasons)})
             continue
-        rows.append({
-            "file": r.File, "audio_path": rel, "speaker_id": r.Speaker_ann,
-            "transcription_original": r.Transcription, "transcription_normalized": text,
-            "needs_review": needs_review, "duration": float(r.Duration),
-            "quality": r.Quality, "native_status": NATIVE_FIX.get(r.Native_Status, r.Native_Status),
-            "topic": r.Topic_ann, "split": "",
+        rows.append({**r, "transcription_normalized": text, "needs_review": needs_review,
+                     "sample_rate": sample_rate, "split": ""})
+    return rows, excluded, duration_mismatches
+
+
+def check_join(ann: pd.DataFrame, meta: pd.DataFrame, corpus: str) -> None:
+    for name, df in (("anotasi", ann), ("metadata", meta)):
+        if not df["File"].is_unique:
+            raise ValueError(f"{corpus} {name}: nama berkas audio duplikat: {df['File'][df['File'].duplicated()].tolist()[:5]}")
+    if set(ann["File"]) != set(meta["File"]):
+        raise ValueError(f"{corpus}: File anotasi dan metadata tidak cocok: "
+                         f"hanya-anotasi={sorted(set(ann['File']) - set(meta['File']))[:5]} "
+                         f"hanya-metadata={sorted(set(meta['File']) - set(ann['File']))[:5]}")
+
+
+def load_main_corpus(repo_root: Path):
+    """Korpus kelompok kami. ID penutur dan path audio tetap sama seperti pembagian sebelumnya."""
+    root = repo_root / MAIN_CORPUS
+    ann = pd.read_csv(root / "annotation" / "annotation.csv")
+    meta = pd.read_csv(root / "metadata" / "metadata.csv")
+    check_join(ann, meta, MAIN_CORPUS)
+    df = ann.merge(meta, on="File", suffixes=("_ann", "_meta"), validate="one_to_one")
+    if (df["Speaker_ann"] != df["Speaker_meta"]).any():
+        raise ValueError(f"{MAIN_CORPUS}: penutur berbeda antara anotasi dan metadata untuk "
+                         f"{df.loc[df['Speaker_ann'] != df['Speaker_meta'], 'File'].tolist()[:5]}")
+    return [{
+        "file": r.File, "source_corpus": MAIN_CORPUS, "source_path": f"{MAIN_CORPUS}/audio/{r.Speaker_ann}/{r.File}",
+        "audio_path": f"audio/{r.Speaker_ann}/{r.File}", "speaker_id": r.Speaker_ann,
+        "transcription_original": r.Transcription, "duration": float(r.Duration), "quality": r.Quality,
+        "native_status": NATIVE_FIX.get(r.Native_Status, r.Native_Status), "topic": r.Topic_ann,
+    } for r in df.itertuples()], []
+
+
+def g04_speaker(file_name: str) -> str:
+    return file_name.split("_")[0].upper()
+
+
+def load_g04_corpus(repo_root: Path):
+    """Korpus kelompok G04 yang terpecah per penutur dan memakai skema kolom berbeda.
+
+    ID penutur dan nama berkas diberi awalan G04 karena bentrok dengan ID korpus kami.
+    """
+    root = repo_root / G04_CORPUS
+    ann = pd.concat([pd.read_csv(f, encoding="utf-8-sig") for f in sorted((root / "annotation").glob("*.csv"))],
+                    ignore_index=True).rename(columns={"Label Speaker": "AnnSpeaker"})
+    meta = pd.concat([pd.read_csv(f, encoding="utf-8-sig") for f in sorted((root / "metadata").glob("*.csv"))],
+                     ignore_index=True)
+
+    # Sebagian nama berkas di anotasi memakai kode topik yang salah, sedangkan metadata dan audio benar.
+    # Pasangan dicocokkan lewat penutur dan nomor ujaran yang unik per penutur.
+    meta_names = set(meta["File"])
+    by_number = {}
+    for f in meta_names:
+        by_number.setdefault((g04_speaker(f), f.split("_")[2]), []).append(f)
+    name_fixes = []
+    for i, f in ann["File"].items():
+        if f not in meta_names:
+            candidates = by_number.get((g04_speaker(f), f.split("_")[2]), [])
+            if len(candidates) != 1:
+                raise ValueError(f"{G04_CORPUS}: {f} tidak dapat dipasangkan dengan metadata, kandidat {candidates}")
+            ann.at[i, "File"] = candidates[0]
+            name_fixes.append({"annotation_file": f, "metadata_file": candidates[0]})
+    check_join(ann, meta, G04_CORPUS)
+
+    df = ann.merge(meta, on="File", validate="one_to_one")
+    audio_index = {p.name: p for p in (root / "audio").rglob("*") if p.suffix.lower() == ".wav"}
+    records = []
+    for r in df.itertuples():
+        speaker = g04_speaker(r.File)
+        meta_speaker = str(r.Speaker)
+        meta_speaker = f"S{int(meta_speaker):02d}" if meta_speaker.isdigit() else meta_speaker.upper()
+        if speaker != str(r.AnnSpeaker).upper() or speaker != meta_speaker:
+            raise ValueError(f"{G04_CORPUS}: penutur tidak konsisten untuk {r.File}: "
+                             f"anotasi={r.AnnSpeaker} metadata={r.Speaker}")
+        source = audio_index.get(r.File)
+        stem = Path(r.File).stem
+        records.append({
+            "file": f"G04_{r.File}", "source_corpus": G04_CORPUS,
+            "source_path": str(source.relative_to(repo_root)) if source else f"{G04_CORPUS}/audio/{r.File}",
+            "audio_path": f"audio/G04/{speaker}/{stem}.wav", "speaker_id": f"G04_{speaker}",
+            "transcription_original": r.Transkripsi, "duration": float(r.Duration),
+            "quality": str(r.Quality).strip().capitalize(), "native_status": "Unknown", "topic": r.Topic,
         })
+    return records, name_fixes
+
+
+def build_manifest(repo_root: Path):
+    main_records, _ = load_main_corpus(repo_root)
+    g04_records, name_fixes = load_g04_corpus(repo_root)
+    rows, excluded, duration_mismatches = make_rows(main_records + g04_records, repo_root)
     manifest = pd.DataFrame(rows, columns=MANIFEST_COLUMNS).sort_values("file").reset_index(drop=True)
-    return manifest, excluded
+    if not manifest["file"].is_unique or not manifest["audio_path"].is_unique:
+        raise ValueError("Nama berkas atau path audio tidak unik setelah penggabungan korpus")
+    return manifest, excluded, {"g04_annotation_name_fixes": name_fixes, "metadata_duration_mismatches": duration_mismatches}
 
 
 def fingerprint(manifest: pd.DataFrame) -> str:
@@ -185,13 +287,14 @@ def subset_summary(df: pd.DataFrame, speakers: list) -> dict:
         "total_duration_sec": round(float(df["duration"].sum()), 2),
         "quality_counts": {k: int(v) for k, v in df["quality"].value_counts().items()},
         "native_status_counts": {k: int(v) for k, v in df["native_status"].value_counts().items()},
+        "source_corpus_counts": {k: int(v) for k, v in df["source_corpus"].value_counts().items()},
         "utterances_per_speaker": {k: int(v) for k, v in df["speaker_id"].value_counts().sort_index().items()},
     }
 
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--corpus-root", default=str(CORPUS_ROOT))
+    ap.add_argument("--repo-root", default=str(REPO_ROOT))
     ap.add_argument("--out-dir", default=str(ASR_ROOT / "data"))
     ap.add_argument("--seed", type=int, default=SEED)
     ap.add_argument("--force", action="store_true")
@@ -200,7 +303,7 @@ def main():
     split_dir = out / "splits"
     meta_path = split_dir / "split_metadata.json"
 
-    manifest, excluded = build_manifest(Path(args.corpus_root))
+    manifest, excluded, data_fixes = build_manifest(Path(args.repo_root))
     fp = fingerprint(manifest)
     if meta_path.exists() and not args.force:
         changed = json.loads(meta_path.read_text()).get("manifest_fingerprint") != fp
@@ -221,7 +324,9 @@ def main():
         "subsets": {name: subset_summary(df, assign[name]) for name, df in parts.items()},
         "normalization_version": NORMALIZATION_VERSION,
         "n_eligible": int(len(manifest)),
+        "source_corpus_counts": {k: int(v) for k, v in manifest["source_corpus"].value_counts().items()},
         "excluded_files": excluded,
+        **data_fixes,
         "needs_review_files": manifest.loc[manifest["needs_review"], "file"].tolist(),
         "note": "Random speaker-level split; no balancing by gender/native status/noise was applied.",
     }
@@ -230,8 +335,8 @@ def main():
         df.to_csv(split_dir / f"{name}.csv", index=False)
     meta_path.write_text(json.dumps(meta, indent=2, ensure_ascii=False))
     manifest.to_csv(out / "manifest.csv", index=False)
-    print(json.dumps({k: v for k, v in meta.items() if k != "excluded_files"}, indent=2, ensure_ascii=False))
-    print(f"dikecualikan: {len(excluded)}")
+    print(json.dumps({k: v for k, v in meta.items() if k not in ("excluded_files", *data_fixes)}, indent=2, ensure_ascii=False))
+    print(f"dikecualikan: {len(excluded)} | " + " | ".join(f"{k}: {len(v)}" for k, v in data_fixes.items()))
 
 
 if __name__ == "__main__":
