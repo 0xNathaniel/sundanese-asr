@@ -1,0 +1,34 @@
+{
+  "model_id": "cahya/wav2vec2-large-xlsr-sundanese",
+  "split": "val",
+  "final_choice": "wer",
+  "epoch": 9.0,
+  "wer": 0.4443742098609355,
+  "cer": 0.20944125975550798,
+  "wer_folded": 0.4365781710914454,
+  "cer_folded": 0.20622971199668486,
+  "details": {
+    "wer": 0.4443742098609355,
+    "cer": 0.20944125975550798,
+    "n_utterances": 442,
+    "word_ref_count": 4746,
+    "char_ref_count": 28958,
+    "word_sub": 1499,
+    "word_del": 291,
+    "word_ins": 319,
+    "char_sub": 2556,
+    "char_del": 1935,
+    "char_ins": 1574
+  },
+  "e_words_correct": 253,
+  "e_words_total": 456,
+  "e_word_accuracy": 0.5548245614035088,
+  "e_chars_predicted": 454,
+  "e_chars_reference": 499,
+  "baseline": {
+    "wer": 0.6728,
+    "cer": 0.276,
+    "wer_folded": 0.6319,
+    "cer_folded": 0.262
+  }
+}
