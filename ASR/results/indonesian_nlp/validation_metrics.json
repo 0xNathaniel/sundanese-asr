@@ -1,0 +1,51 @@
+{
+  "model_id": "indonesian-nlp/wav2vec2-indonesian-javanese-sundanese",
+  "split": "val",
+  "epoch": 14.0,
+  "wer": 0.415929203539823,
+  "cer": 0.20412321292906968,
+  "wer_folded": 0.404551201011378,
+  "cer_folded": 0.20029007528144208,
+  "details": {
+    "wer": 0.415929203539823,
+    "cer": 0.20412321292906968,
+    "n_utterances": 442,
+    "word_ref_count": 4746,
+    "char_ref_count": 28958,
+    "word_sub": 1383,
+    "word_del": 308,
+    "word_ins": 283,
+    "char_sub": 2462,
+    "char_del": 1960,
+    "char_ins": 1489
+  },
+  "e_words_correct": 244,
+  "e_words_total": 456,
+  "e_word_accuracy": 0.5350877192982456,
+  "e_chars_predicted": 410,
+  "e_chars_reference": 499,
+  "baseline": {
+    "wer": 0.7096502317741256,
+    "cer": 0.28745079080046965,
+    "wer_folded": 0.6729877791824694,
+    "cer_folded": 0.27349955107396917,
+    "details": {
+      "wer": 0.7096502317741256,
+      "cer": 0.28745079080046965,
+      "n_utterances": 442,
+      "word_ref_count": 4746,
+      "char_ref_count": 28958,
+      "word_sub": 2573,
+      "word_del": 511,
+      "word_ins": 284,
+      "char_sub": 3518,
+      "char_del": 2653,
+      "char_ins": 2153
+    },
+    "e_words_correct": 0,
+    "e_words_total": 456,
+    "e_word_accuracy": 0.0,
+    "e_chars_predicted": 0,
+    "e_chars_reference": 499
+  }
+}
