@@ -1,0 +1,3 @@
+kosakata,jumlah_kata,salah,persen_salah
+kata ada di data latih,3456,1091,0.31568287037037035
+kata jarang (tidak ada di data latih),723,458,0.6334716459197787
