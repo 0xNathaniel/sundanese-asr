@@ -1,0 +1,49 @@
+\chapter{Korpus Bahasa Sunda}
+\label{bab:korpus}
+
+\section{Sumber rekaman dan anotasi}
+
+Korpus kelompok memuat 750 ujaran dari 10 penutur berusia 15--51 tahun. Delapan penutur jati berbicara spontan dan dua penutur lainnya membacakan naskah. Topiknya mencakup kegiatan sehari-hari, keluarga, makanan, pekerjaan atau pendidikan, serta hobi. Rekaman ponsel umumnya dibuat di dalam ruangan. Anotasi mempertahankan kata serapan dan pengulangan serta menandai kata pengisi dan kejadian khusus \cite{fase1,korpusutama}.
+
+Korpus G04 menambah 1.435 ujaran dari 11 penutur dengan status penutur jati \textit{Unknown}. Topiknya meliputi perkenalan, kegiatan sehari-hari, keluarga, makanan, pendidikan, pekerjaan, dan perjalanan. Setiap korpus memiliki skema kode topiknya sendiri \cite{korpusg04,repoasr}.
+
+\begin{table}[!htbp]
+  \centering\small
+  \caption{Komposisi korpus setelah seleksi. Durasi dihitung dari berkas audio pada manifes.}
+  \label{tab:korpus}
+  \begin{tabular}{@{}lrrrrr@{}}
+    \toprule
+    Sumber & Penutur & Ujaran & Durasi (menit) & \textit{Good} & \textit{Acceptable} \\
+    \midrule
+    Korpus kelompok & 10 & 750 & 116,49 & 679 & 71 \\
+    Korpus G04 & 11 & 1.435 & 95,22 & 1.355 & 80 \\
+    \midrule
+    Total & 21 & 2.185 & 211,71 & 2.034 & 151 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\section{Kendali mutu}
+
+Kendali mutu Fase 1 memeriksa kejelasan, kliping, derau, tumpang tindih ucapan, batas segmen, dan format melalui penyimakan, bentuk gelombang, serta spektrogram. Seleksi Fase 2 menerima label \textit{Good} dan \textit{Acceptable} serta membuang 21 ujaran G04 berlabel \textit{Reject}. Dua ujaran bertanda \kode{[unclear]} tetap digunakan dan ditandai untuk ditinjau \cite{fase1,korpusg04,repoasr}.
+
+\section{Pembagian berdasarkan penutur}
+
+Susunan 21 ID penutur diacak dengan \kode{numpy.random.RandomState(42)} setelah ID diurutkan. Sebanyak 13 ID pertama masuk latih, empat berikutnya validasi, dan empat terakhir uji. Pemeriksaan saat ekspor memastikan ID penutur dan berkas ujaran saling terpisah \cite{repoasr}.
+
+\begin{table}[!htbp]
+  \centering\small
+  \caption{Pembagian data dan komposisi sumber.}
+  \label{tab:split}
+  \begin{tabular}{@{}lrrrrr@{}}
+    \toprule
+    Himpunan & Penutur & Ujaran & Durasi (menit) & Korpus kelompok & G04 \\
+    \midrule
+    Latih & 13 & 1.416 & 127,64 & 445 & 971 \\
+    Validasi & 4 & 442 & 48,67 & 175 & 267 \\
+    Uji & 4 & 327 & 35,40 & 130 & 197 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Validasi memakai \kode{G04_S05}, \kode{G04_S08}, \kode{S02}, dan \kode{S10}. Uji memakai \kode{G04_S07}, \kode{G04_S11}, \kode{S04}, dan \kode{S09}. Daftar lengkap ada di \kode{ASR/data/splits/split_metadata.json}. Pembagian tunggal ini tidak diseimbangkan menurut gender, status penutur jati, atau derau.

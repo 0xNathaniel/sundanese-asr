@@ -1,0 +1,53 @@
+\documentclass[11pt,letterpaper,oneside]{report}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[indonesian]{babel}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{graphicx,booktabs,tabularx,array}
+\usepackage[font=small,labelfont=bf]{caption}
+\usepackage{titlesec,xurl}
+\usepackage[hidelinks,unicode]{hyperref}
+
+\graphicspath{{figures/}}
+\titleformat{\chapter}[display]
+  {\normalfont\bfseries\Large}{\MakeUppercase{\chaptername} \thechapter}{5pt}{\huge}
+\titlespacing*{\chapter}{0pt}{0pt}{20pt}
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+\newcommand{\pct}[1]{#1\%}
+\newcommand{\kode}[1]{\nolinkurl{#1}}
+\hypersetup{
+  pdftitle={Pengenalan Ucapan Bahasa Sunda dengan wav2vec 2.0},
+  pdfauthor={Nathaniel Jonathan Rusli, Maheswara Bayu Kaindra, Peter Wongsoredjo, Jessica Allen, Haegen Quinston},
+  pdfsubject={Laporan IF4071 Pemrosesan Ucapan, Tugas Besar Fase 2}
+}
+
+\begin{document}
+\hypersetup{pageanchor=false}
+\input{frontmatter/sampul}
+\pagenumbering{roman}
+\hypersetup{pageanchor=true}
+\input{frontmatter/abstrak}
+\clearpage
+\tableofcontents
+\clearpage
+\pagenumbering{arabic}
+
+\include{chapters/01-pendahuluan}
+\include{chapters/02-korpus}
+\include{chapters/03-pemodelan}
+\include{chapters/04-implementasi}
+\include{chapters/05-eksperimen}
+\include{chapters/06-hasil}
+\include{chapters/07-analisis}
+\include{chapters/08-penutup}
+
+\clearpage
+\phantomsection
+\addcontentsline{toc}{chapter}{Daftar Pustaka}
+\renewcommand{\bibname}{Daftar Pustaka}
+\bibliographystyle{unsrt}
+\bibliography{references}
+\end{document}
