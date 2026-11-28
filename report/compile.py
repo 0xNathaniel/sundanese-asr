@@ -16,10 +16,7 @@ def compile_report(report_dir: Path) -> Path:
             "Pasang TeX Live atau MiKTeX untuk menjalankan kompilasi."
         )
 
-    build_dir = report_dir / "build"
-    build_dir.mkdir(exist_ok=True)
-    log_path = build_dir / "compile.log"
-    pdf_path = build_dir / "main.pdf"
+    pdf_path = report_dir / "main.pdf"
     latex = [
         executables["pdflatex"],
         "-interaction=nonstopmode",
@@ -35,7 +32,7 @@ def compile_report(report_dir: Path) -> Path:
         ("pdfLaTeX 3/3", latex),
     )
 
-    with TemporaryDirectory(prefix="latex-", dir=build_dir) as directory:
+    with TemporaryDirectory(prefix="latex-") as directory:
         stage = Path(directory)
         for filename in ("main.tex", "references.bib"):
             shutil.copy2(report_dir / filename, stage / filename)
@@ -46,30 +43,26 @@ def compile_report(report_dir: Path) -> Path:
                 ignore=shutil.ignore_patterns("*.aux"),
             )
 
-        with log_path.open("w", encoding="utf-8") as log:
-            for label, command in steps:
-                print(f"Menjalankan {label}...", flush=True)
-                result = subprocess.run(
-                    command,
-                    cwd=stage,
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.STDOUT,
-                    text=True,
-                    encoding="utf-8",
-                    errors="replace",
-                    check=False,
-                )
-                log.write(f"=== {label} ===\n{result.stdout}\n")
-                if result.returncode:
-                    print("\n".join(result.stdout.splitlines()[-20:]), file=sys.stderr)
-                    raise RuntimeError(
-                        f"{label} gagal (kode {result.returncode}). Log: {log_path}"
-                    )
+        for label, command in steps:
+            print(f"Menjalankan {label}...", flush=True)
+            result = subprocess.run(
+                command,
+                cwd=stage,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                text=True,
+                encoding="utf-8",
+                errors="replace",
+                check=False,
+            )
+            if result.returncode:
+                print("\n".join(result.stdout.splitlines()[-20:]), file=sys.stderr)
+                raise RuntimeError(f"{label} gagal (kode {result.returncode}).")
 
         built_pdf = stage / "main.pdf"
         if not built_pdf.is_file():
-            raise RuntimeError(f"PDF tidak terbentuk. Log: {log_path}")
-        built_pdf.replace(pdf_path)
+            raise RuntimeError("PDF tidak terbentuk.")
+        shutil.copy2(built_pdf, pdf_path)
 
     return pdf_path
 
