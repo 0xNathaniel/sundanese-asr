@@ -3,21 +3,21 @@
 
 \section{Latar belakang}
 
-Pengenalan ucapan otomatis (\textit{Automatic Speech Recognition} atau ASR) mengubah rekaman ucapan menjadi teks. Jumlah rekaman bahasa Sunda bertranskripsi dalam tugas ini terbatas, sementara ujaran spontan memuat kata pengisi, pengulangan, alih kode, dan variasi pengucapan. Perbedaan antara \textit{e} dan \textit{é} juga perlu dipertahankan agar penilaian mencerminkan ejaan transkripsi rujukan.
+Pengenalan ucapan otomatis (\textit{Automatic Speech Recognition} atau ASR) mengubah rekaman ucapan menjadi teks. Jumlah rekaman bahasa Sunda bertranskripsi dalam tugas ini terbatas. Ujaran spontan juga memuat kata pengisi, pengulangan, alih kode, dan variasi pengucapan. Perbedaan antara \textit{e} dan \textit{é} perlu dipertahankan agar penilaian mencerminkan ejaan transkripsi rujukan.
 
-Pada Fase 2, korpus kelompok dari Fase 1 digabungkan dengan korpus G04 untuk menyetel ulang model pralatih wav2vec 2.0, sesuai spesifikasi tugas IF4071 \cite{spesifikasi,fase1,korpusg04}. Representasi akustik dari model pralatih memberi titik awal ketika data lokal bertranskripsi terbatas \cite{baevski2020,conneau2021}.
+Pada Fase 2, korpus kelompok dari Fase 1 digabungkan dengan korpus G04 untuk menyetel ulang model pralatih wav2vec 2.0 sesuai spesifikasi tugas IF4071 \cite{spesifikasi,fase1,korpusg04}. Representasi akustik dari model pralatih memberi titik awal ketika data lokal bertranskripsi terbatas \cite{baevski2020,conneau2021}.
 
 \section{Tujuan}
 
 \begin{enumerate}
   \item Membangun sistem ASR bahasa Sunda dengan menyetel ulang model wav2vec 2.0 berbasis CTC menggunakan pasangan audio dan transkripsi Fase 1.
-  \item Mengukur perubahan WER dan CER terhadap kondisi \textit{zero-shot} pada penutur yang terpisah dari data latih dan membandingkan dua titik awal model pada data validasi.
-  \item Menganalisis pola kesalahan pada data uji dan merumuskan perbaikan data, evaluasi, dan dekode.
+  \item Mengukur perubahan WER dan CER terhadap kondisi \textit{zero-shot} pada penutur yang terpisah dari data latih. Evaluasi ini juga membandingkan dua titik awal model pada data validasi.
+  \item Menganalisis pola kesalahan pada data uji serta merumuskan perbaikan data, evaluasi, dan dekode.
 \end{enumerate}
 
 \section{Repositori tugas besar}
 
-Kode prapemrosesan, notebook pelatihan dan inferensi, manifes, pembagian data, serta hasil evaluasi tersedia di folder \kode{ASR} pada cabang \kode{asr-dev} repositori GitHub publik. Sumber artefak untuk laporan ini adalah commit \kode{fa3ebaa} \cite{repoasr}.
+Kode prapemrosesan, \textit{notebook} pelatihan dan inferensi, manifes, pembagian data, serta hasil evaluasi tersedia di folder \kode{ASR} pada cabang \kode{asr-dev} repositori GitHub publik. Sumber artefak untuk laporan ini adalah \textit{commit} \kode{fa3ebaa} \cite{repoasr}.
 
 \begin{quote}
 \url{https://github.com/0xNathaniel/sundanese-asr/tree/asr-dev/ASR}

@@ -3,32 +3,32 @@
 
 \section{Penyusunan manifes dan validasi audio}
 
-Skrip \kode{prepare_asr_dataset.py} menghubungkan metadata dan anotasi melalui nama berkas. Untuk G04, skrip menyelaraskan 45 nama dalam anotasi yang kode topiknya berbeda dari metadata, lalu menambahkan awalan \kode{G04_} pada ID penutur dan ID ujaran untuk mencegah tabrakan dengan ID korpus kelompok. Skrip membaca durasi langsung dari audio. Sebanyak 64 selisih durasi di atas 0,2 detik dicatat dalam metadata pembagian \cite{repoasr}.
+Skrip \kode{prepare_asr_dataset.py} menghubungkan metadata dan anotasi melalui nama berkas. Untuk G04, skrip menyelaraskan 45 nama berkas dalam anotasi yang kode topiknya berbeda dari metadata. Skrip lalu menambahkan awalan \kode{G04_} pada ID penutur dan ID ujaran untuk mencegah benturan dengan ID korpus kelompok. Skrip membaca durasi langsung dari audio. Sebanyak 64 selisih durasi di atas 0,2 detik dicatat dalam metadata pembagian \cite{repoasr}.
 
-Skrip memeriksa keberadaan dan isi audio, format WAV mono PCM 16-bit, laju sampel 16 atau 48 kHz, label kualitas, dan kelengkapan transkripsi. Skrip juga menguji kelayakan panjang target untuk CTC dengan menaksir jumlah bingkai dari durasi dan memperhitungkan token kosong tambahan yang diperlukan untuk memisahkan karakter berulang \cite{graves2006,repoasr}.
+Skrip memeriksa keberadaan dan isi audio, format WAV mono PCM 16-bit, laju sampel 16 atau 48 kHz, label kualitas, dan kelengkapan transkripsi. Skrip juga menguji kelayakan panjang target CTC dengan menaksir jumlah bingkai dari durasi audio. Taksiran ini turut memperhitungkan token kosong tambahan untuk memisahkan karakter berulang \cite{graves2006,repoasr}.
 
 \section{Prapemrosesan audio dan transkripsi}
 
-Skrip \kode{export_kaggle_dataset.py} menyalin audio 16 kHz dan menurunkan laju sampel 245 berkas G04 dari 48 ke 16 kHz dengan filter polifase \kode{scipy.signal.resample_poly}. Hasil disimpan kembali sebagai PCM 16-bit. Pada model, ekstraktor fitur dari \kode{Wav2Vec2Processor} menormalisasi gelombang sebelum konvolusi. Masukan utama berupa gelombang satu kanal pada 16 kHz \cite{scipy,soundfile,transformers,repoasr}.
+Skrip \kode{export_kaggle_dataset.py} menyalin audio 16 kHz dan menurunkan laju sampel 245 berkas G04 dari 48 ke 16 kHz dengan filter polifase \kode{scipy.signal.resample_poly}. Hasilnya disimpan kembali sebagai PCM 16-bit. Pada model, ekstraktor fitur dari \kode{Wav2Vec2Processor} menormalisasi gelombang sebelum konvolusi. Masukan utama berupa gelombang satu kanal pada 16 kHz \cite{scipy,soundfile,transformers,repoasr}.
 
 Normalisasi transkripsi versi \kode{v1} diterapkan sebelum pembagian data dan menghasilkan target yang sama untuk kedua model \cite{repoasr}.
 
 \begin{enumerate}
   \item Ubah teks ke bentuk Unicode NFC dan huruf kecil. Pertahankan huruf \textit{é}.
-  \item Hapus tag \kode{[ee]}, \kode{[ee..]}, \kode{[noise]}, \kode{[overlap]}, dan \kode{[s]}. Buang tag \kode{[unclear]} sambil menandai rekamannya untuk ditinjau. Pertahankan isi tag lain tanpa kurung siku dan pertahankan pengisi tanpa tag yang masih tercatat sebagai kata.
-  \item Ubah angka 0--99 menjadi bentuk lisan bahasa Sunda. Pemetaan eksplisit juga mencakup \kode{s2} menjadi \textit{es dua} dan \kode{2023} menjadi \textit{dua rebu dua puluh tilu}.
-  \item Perlakukan tanda hubung dan tanda baca sebagai pemisah, rapatkan spasi, dan periksa bahwa karakter target ada dalam himpunan huruf yang didukung.
+  \item Hapus penanda \kode{[ee]}, \kode{[ee..]}, \kode{[noise]}, \kode{[overlap]}, dan \kode{[s]}. Buang penanda \kode{[unclear]} sambil menandai rekamannya untuk ditinjau. Pertahankan isi penanda lain tanpa kurung siku. Pertahankan pula kata pengisi tanpa penanda yang masih tercatat sebagai kata.
+  \item Ubah angka 0 sampai 99 menjadi bentuk lisan bahasa Sunda. Pemetaan eksplisit juga mencakup \kode{s2} menjadi \textit{es dua} dan \kode{2023} menjadi \textit{dua rebu dua puluh tilu}.
+  \item Perlakukan tanda hubung dan tanda baca sebagai pemisah kata. Rapatkan spasi berlebih dan pastikan seluruh karakter target termasuk dalam himpunan huruf yang didukung.
 \end{enumerate}
 
 \clearpage
 \section{Pelatihan dan inferensi}
 
-Notebook \kode{01_pretrained_baseline.ipynb} menjalankan inferensi awal. Notebook \kode{02_finetune_cahya.ipynb} dan \kode{03_finetune_indonesian_nlp.ipynb} memuat data ekspor Kaggle, memeriksa pembagian penutur, dan menyiapkan target karakter. Untuk setiap batch, gelombang dipanjangkan dengan padding sesuai kebutuhan dan padding target diisi \kode{-100} agar diabaikan dalam pelatihan. \kode{Trainer} menjalankan penyetelan dan menyimpan model sesuai WER validasi. Resep pelatihan mengacu pada notebook Cahya, khususnya regularisasi model dan pembekuan ekstraktor fitur, kemudian disesuaikan dengan pembagian penutur dan normalisasi korpus gabungan \cite{cahyaresep,transformers,accelerate,repoasr}.
+\textit{Notebook} \kode{01_pretrained_baseline.ipynb} menjalankan inferensi awal. \textit{Notebook} \kode{02_finetune_cahya.ipynb} dan \kode{03_finetune_indonesian_nlp.ipynb} memuat data ekspor Kaggle, memeriksa pembagian penutur, dan menyiapkan target karakter. Pada setiap \textit{batch}, panjang gelombang disamakan melalui penambahan \textit{padding}. Posisi \textit{padding} pada target diisi \kode{-100} agar diabaikan dalam perhitungan kerugian. Objek \kode{Trainer} menjalankan penyetelan dan menyimpan model sesuai WER validasi. Resep pelatihan mengacu pada \textit{notebook} Cahya untuk regularisasi model dan pembekuan ekstraktor fitur. Konfigurasi tersebut kemudian disesuaikan dengan pembagian penutur dan normalisasi korpus gabungan \cite{cahyaresep,transformers,accelerate,repoasr}.
 
-Saat inferensi, gelombang dikelompokkan menurut panjang dan diproses dalam batch berisi paling banyak empat ujaran. Dekode \textit{greedy} memilih token dengan logit terbesar pada setiap bingkai, menerapkan aturan penggabungan CTC, lalu memulihkan batas kata. Konfigurasi ini menggunakan keluaran model akustik tanpa model bahasa eksternal. Notebook 03 menyertakan demonstrasi transkripsi menggunakan model yang disimpan oleh notebook \cite{repoasr}.
+Saat inferensi, gelombang dikelompokkan menurut panjang dan diproses dalam \textit{batch} berisi paling banyak empat ujaran. Dekode \textit{greedy} memilih token dengan logit terbesar pada setiap bingkai, menerapkan aturan penggabungan CTC, lalu memulihkan batas kata. Konfigurasi ini menggunakan keluaran model akustik tanpa model bahasa eksternal. \textit{Notebook} 03 menyertakan demonstrasi transkripsi menggunakan model yang disimpan oleh \textit{notebook} tersebut \cite{repoasr}.
 
 \section{Lingkungan dan artefak}
 
-Kedua pelatihan menggunakan Kaggle dan dua GPU Tesla T4. Versi yang tercatat mencakup Python 3.13.16, PyTorch 2.11.0 dengan CUDA 13.0, dan Transformers 5.20.2. Notebook 03 mencatat pula Accelerate 1.15.0, JiWER 4.0.0, SoundFile 0.14.0, SciPy 1.16.3, pandas 2.3.3, dan NumPy 2.1.3. Matplotlib dipakai untuk kurva pelatihan \cite{pytorch,transformers,accelerate,jiwer,soundfile,scipy,pandas,numpy,matplotlib,repoasr}.
+Kedua pelatihan menggunakan Kaggle dan dua GPU Tesla T4. Versi yang tercatat mencakup Python 3.13.16, PyTorch 2.11.0 dengan CUDA 13.0, dan Transformers 5.20.2. \textit{Notebook} 03 mencatat pula Accelerate 1.15.0, JiWER 4.0.0, SoundFile 0.14.0, SciPy 1.16.3, pandas 2.3.3, dan NumPy 2.1.3. Matplotlib dipakai untuk kurva pelatihan \cite{pytorch,transformers,accelerate,jiwer,soundfile,scipy,pandas,numpy,matplotlib,repoasr}.
 
-Repositori menyediakan konfigurasi, tokenizer, riwayat pelatihan, dan hasil evaluasi pada \kode{ASR/results/}. Notebook menyimpan bobot model dan prosesor sebagai keluaran Kaggle di bawah \kode{/kaggle/working/asr_outputs/}. Tautan unduhan bobot hasil penyetelan belum tercatat pada snapshot repositori yang dirujuk.
+Repositori menyediakan konfigurasi, \textit{tokenizer}, riwayat pelatihan, dan hasil evaluasi pada \kode{ASR/results/}. \textit{Notebook} menyimpan bobot model dan prosesor sebagai keluaran Kaggle di bawah \kode{/kaggle/working/asr_outputs/}. Tautan unduhan bobot hasil penyetelan belum tercatat pada \textit{snapshot} repositori yang dirujuk.

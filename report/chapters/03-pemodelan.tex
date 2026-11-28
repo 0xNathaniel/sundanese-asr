@@ -3,7 +3,7 @@
 
 \section{Pemilihan teknik}
 
-Kedua model memakai wav2vec 2.0 XLSR-53 dengan keluaran karakter. Pada prapelatihan wav2vec 2.0, sebagian representasi audio laten ditutupi. Model dilatih untuk membedakan target terkuantisasi yang sesuai dari kandidat lain. XLSR memperluas pendekatan ini ke audio lintas bahasa dengan representasi laten bersama \cite{baevski2020,conneau2021}. Dalam tugas ini, penyetelan menggunakan pasangan audio dan transkripsi Sunda dimulai dari model yang sudah memiliki kepala ASR. Pendekatan ini memanfaatkan representasi akustik dari prapelatihan dan memungkinkan pengujian pada korpus lokal yang menyediakan sekitar 128 menit audio latih.
+Kedua model memakai wav2vec 2.0 XLSR-53 dengan keluaran karakter. Pada prapelatihan wav2vec 2.0, sebagian representasi audio laten ditutupi. Model dilatih untuk membedakan target terkuantisasi yang sesuai dari kandidat lain. XLSR memperluas pendekatan ini ke audio lintas bahasa dengan representasi laten bersama \cite{baevski2020,conneau2021}. Dalam tugas ini, penyetelan menggunakan pasangan audio dan transkripsi Sunda dimulai dari model yang sudah memiliki kepala ASR. Pendekatan ini memanfaatkan representasi akustik dari tahap prapelatihan. Dengan demikian, model dapat diuji pada korpus lokal yang memiliki sekitar 128 menit audio latih.
 
 \section{Arsitektur dan fungsi objektif}
 
@@ -39,11 +39,11 @@ Ekstraktor fitur tujuh lapis konvolusi mengubah sampel gelombang menjadi urutan 
 \section{Model pralatih dan kosakata}
 
 \begin{description}
-  \item[Cahya.] \kode{cahya/wav2vec2-large-xlsr-sundanese}, revisi \kode{beffe9e905ecd0787c3e87f271f8df7142f23b5b}. Model ini telah disetel untuk bahasa Sunda. Kepala CTC bawaannya memiliki 29 keluaran dan kosakatanya belum memuat \textit{é}. Sebelum penyetelan pada korpus gabungan, token \textit{é} dan satu baris baru pada kepala CTC ditambahkan. Bobot keluaran yang sudah ada disalin dan baris tambahan diinisialisasi secara acak \cite{cahyamodel,cahyaresep,repoasr}.
-  \item[Indonesian NLP.] \kode{indonesian-nlp/wav2vec2-indonesian-javanese-sundanese}, revisi \kode{e5e699fa5aa5bdce999276a90a29589587b58ac9}. Model ini telah disetel menggunakan data bahasa Indonesia, Jawa, dan Sunda. Kosakata bawaannya sudah memuat \textit{é} dan kepala CTC memiliki 30 keluaran, sehingga keduanya dapat digunakan langsung \cite{nlpmodel,repoasr}.
+  \item[Cahya.] \kode{cahya/wav2vec2-large-xlsr-sundanese}, revisi \kode{beffe9e905ecd0787c3e87f271f8df7142f23b5b}. Model ini telah disetel untuk bahasa Sunda. Kepala CTC bawaannya memiliki 29 keluaran dan kosakatanya belum memuat \textit{é}. Sebelum penyetelan pada korpus gabungan, token \textit{é} dan satu baris baru pada kepala CTC ditambahkan. Bobot keluaran yang sudah ada disalin, sedangkan baris tambahan diinisialisasi secara acak \cite{cahyamodel,cahyaresep,repoasr}.
+  \item[Indonesian NLP.] \kode{indonesian-nlp/wav2vec2-indonesian-javanese-sundanese}, revisi \kode{e5e699fa5aa5bdce999276a90a29589587b58ac9}. Model ini telah disetel menggunakan data bahasa Indonesia, Jawa, dan Sunda. Kosakata bawaannya sudah memuat \textit{é} dan kepala CTC memiliki 30 keluaran. Oleh karena itu, model ini dapat disetel langsung tanpa perluasan kosakata \cite{nlpmodel,repoasr}.
 \end{description}
 
-Kedua model hasil penyetelan memiliki 30 keluaran CTC. Token \kode{|} menandai batas kata. Token pengisi \kode{[PAD]} juga berfungsi sebagai \textit{blank} CTC, dan \kode{[UNK]} menandai karakter di luar kosakata.
+Kedua model hasil penyetelan memiliki 30 keluaran CTC. Token \kode{|} menandai batas kata. Token pengisi \kode{[PAD]} juga berfungsi sebagai \textit{blank} CTC. Token \kode{[UNK]} menandai karakter di luar kosakata.
 
 \section{Konfigurasi penyetelan}
 
@@ -55,15 +55,15 @@ Kedua model hasil penyetelan memiliki 30 keluaran CTC. Token \kode{|} menandai b
     \toprule
     Komponen & Konfigurasi \\
     \midrule
-    Data dan seed & 1.416 ujaran latih, 442 ujaran validasi, seed 42 \\
-    Ukuran batch & 4 per GPU, 2 GPU, akumulasi 4 langkah, batch efektif 32 \\
+    Data dan \textit{seed} & 1.416 ujaran latih, 442 ujaran validasi, \textit{seed} 42 \\
+    Ukuran \textit{batch} & 4 per GPU, 2 GPU, akumulasi 4 langkah, \textit{batch} efektif 32 \\
     Laju pembelajaran & \(3 \times 10^{-4}\), pemanasan \pct{10}, peluruhan bobot 0 \\
-    Durasi pelatihan & Maksimum 50 epoch, penghentian dini setelah 5 evaluasi tanpa perbaikan WER \\
+    Durasi pelatihan & Maksimum 50 \textit{epoch}, penghentian dini setelah 5 evaluasi tanpa perbaikan WER \\
     Parameter dan memori & Ekstraktor konvolusi dibekukan, pelatihan FP16, \textit{gradient checkpointing} \\
     Regularisasi & \textit{Attention dropout} dan \textit{hidden dropout} 0,1, \textit{feature projection dropout} 0,0, \textit{layerdrop} 0,1, probabilitas \textit{time masking} 0,3 \\
-    CTC dan pemilihan model & Reduksi \kode{mean}, \kode{ctc_zero_infinity} aktif, evaluasi dan penyimpanan per epoch, WER validasi minimum \\
+    CTC dan pemilihan model & Reduksi \kode{mean}, \kode{ctc_zero_infinity} aktif, evaluasi dan penyimpanan per \textit{epoch}, WER validasi minimum \\
     \bottomrule
   \end{tabularx}
 \end{table}
 
-Konfigurasi pada Tabel~\ref{tab:konfigurasi} berasal dari notebook penyetelan dan \kode{training_config.json} masing-masing model \cite{repoasr}. Enkoder Transformer dan kepala CTC tetap dilatih. Pembekuan hanya diterapkan pada ekstraktor fitur konvolusi.
+Konfigurasi pada Tabel~\ref{tab:konfigurasi} berasal dari \textit{notebook} penyetelan dan \kode{training_config.json} masing-masing model \cite{repoasr}. Enkoder Transformer dan kepala CTC tetap dilatih. Pembekuan hanya diterapkan pada ekstraktor fitur konvolusi.

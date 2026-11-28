@@ -3,7 +3,7 @@
 
 \section{Sumber rekaman dan anotasi}
 
-Korpus kelompok memuat 750 ujaran dari 10 penutur berusia 15--51 tahun. Delapan penutur jati berbicara spontan dan dua penutur lainnya membacakan naskah. Topiknya mencakup kegiatan sehari-hari, keluarga, makanan, pekerjaan atau pendidikan, serta hobi. Rekaman ponsel umumnya dibuat di dalam ruangan. Anotasi mempertahankan kata serapan dan pengulangan serta menandai kata pengisi dan kejadian khusus \cite{fase1,korpusutama}.
+Korpus kelompok memuat 750 ujaran dari 10 penutur berusia 15 sampai 51 tahun. Delapan penutur jati berbicara spontan dan dua penutur lainnya membacakan naskah. Topiknya mencakup kegiatan sehari-hari, keluarga, makanan, pekerjaan atau pendidikan, serta hobi. Rekaman ponsel umumnya dibuat di dalam ruangan. Anotasi mempertahankan kata serapan dan pengulangan kata. Anotasi juga menandai kata pengisi dan kejadian khusus \cite{fase1,korpusutama}.
 
 Korpus G04 menambah 1.435 ujaran dari 11 penutur dengan status penutur jati \textit{Unknown}. Topiknya meliputi perkenalan, kegiatan sehari-hari, keluarga, makanan, pendidikan, pekerjaan, dan perjalanan. Setiap korpus memiliki skema kode topiknya sendiri \cite{korpusg04,repoasr}.
 
@@ -25,11 +25,11 @@ Korpus G04 menambah 1.435 ujaran dari 11 penutur dengan status penutur jati \tex
 
 \section{Kendali mutu}
 
-Kendali mutu Fase 1 memeriksa kejelasan, kliping, derau, tumpang tindih ucapan, batas segmen, dan format melalui penyimakan, bentuk gelombang, serta spektrogram. Seleksi Fase 2 menerima label \textit{Good} dan \textit{Acceptable} serta membuang 21 ujaran G04 berlabel \textit{Reject}. Dua ujaran bertanda \kode{[unclear]} tetap digunakan dan ditandai untuk ditinjau \cite{fase1,korpusg04,repoasr}.
+Kendali mutu Fase 1 memeriksa kejelasan, \textit{clipping}, derau, tumpang tindih ucapan, batas segmen, dan format audio. Pemeriksaan dilakukan melalui penyimakan, bentuk gelombang, serta spektrogram. Seleksi Fase 2 menerima label \textit{Good} dan \textit{Acceptable} serta membuang 21 ujaran G04 berlabel \textit{Reject}. Dua ujaran bertanda \kode{[unclear]} tetap digunakan dan ditandai untuk ditinjau \cite{fase1,korpusg04,repoasr}.
 
 \section{Pembagian berdasarkan penutur}
 
-Susunan 21 ID penutur diacak dengan \kode{numpy.random.RandomState(42)} setelah ID diurutkan. Sebanyak 13 ID pertama masuk latih, empat berikutnya validasi, dan empat terakhir uji. Pemeriksaan saat ekspor memastikan ID penutur dan berkas ujaran saling terpisah \cite{repoasr}.
+Susunan 21 ID penutur diacak dengan \kode{numpy.random.RandomState(42)} setelah ID diurutkan. Sebanyak 13 ID pertama masuk ke himpunan latih, empat berikutnya ke validasi, dan empat terakhir ke uji. Pemeriksaan saat ekspor memastikan ID penutur dan berkas ujaran saling terpisah \cite{repoasr}.
 
 \begin{table}[!htbp]
   \centering\small
