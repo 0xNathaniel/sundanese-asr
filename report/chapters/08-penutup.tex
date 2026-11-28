@@ -2,10 +2,30 @@
 \label{bab:penutup}
 
 \section{Kesimpulan}
-\textit{Bagian ini disiapkan untuk penulis Bab 8.}
+
+Penyetelan ulang model pralatih wav2vec 2.0 XLSR-53 berbasis CTC menggunakan 1.416 ujaran latih (127,64 menit audio dari 13 penutur) berhasil membangun sistem ASR bahasa Sunda untuk ujaran spontan. Penyesuaian normalisasi transkripsi \kode{v1} dan perluasan kepala CTC pada model Cahya memungkinkan kedua model mempertahankan perbedaan ortografis antara huruf \textit{e} dan \textit{é}. Hasil penapisan empat kandidat menunjukkan bahwa laju pembelajaran \(3 \times 10^{-4}\) memberikan konvergensi terbaik pada kedua model.
+
+Pada himpunan validasi (442 ujaran dari empat penutur), penyetelan menurunkan WER model Cahya dari \pct{67,28} pada kondisi \textit{zero-shot} menjadi \pct{44,44} dan CER dari \pct{27,60} menjadi \pct{20,94}. Pada himpunan validasi yang sama, model Indonesian NLP mengalami penurunan WER yang lebih besar dari \pct{70,97} menjadi \pct{41,59} serta penurunan CER dari \pct{28,75} menjadi \pct{20,41}. Pada 327 ujaran uji dari empat penutur terpisah, model Indonesian NLP terpilih menurunkan WER dari \pct{66,57} menjadi \pct{41,06}, menurunkan CER dari \pct{22,96} menjadi \pct{14,73}, dan meningkatkan akurasi kata berhuruf \textit{é} dari \pct{0,00} menjadi \pct{74,65}.
+
+Analisis kesalahan pada himpunan uji menunjukkan bahwa substitusi kata menyumbang \pct{77,74} dari seluruh operasi edit kata, sedangkan kesalahan tingkat karakter jauh lebih rendah dibanding tingkat kata. Kesalahan kata terutama dipicu oleh kata di luar kosakata latih yang tingkat salahnya mencapai \pct{63,35}, dibandingkan \pct{31,57} pada kata yang tercakup di data latih. Sumber kesalahan utama lainnya meliputi perbedaan bentuk lisan terhadap ejaan baku (\textit{abi} dan \textit{abdi}), peluruhan konsonan ganda pada dekode CTC, kata pengisi \textit{ee} tanpa penanda kurung siku, serta anomali penyelarasan anotasi pada sebagian penutur korpus G04.
 
 \section{Keterbatasan}
-\textit{Bagian ini disiapkan untuk penulis Bab 8.}
+
+Eksperimen ini memiliki beberapa keterbatasan metodologis dan data yang perlu diperhatikan dalam menafsirkan hasil:
+
+\begin{enumerate}
+  \item Evaluasi menggunakan satu pembagian acak berbasis penutur dengan empat penutur validasi dan empat penutur uji tanpa penyeimbangan menurut gender, tingkat derau, maupun gaya bicara baca terhadap spontan.
+  \item Seluruh sebelas penutur korpus G04 memiliki status penutur jati \textit{Unknown}, dan sebagian berkas pada penutur seperti \kode{G04_S08} serta \kode{G04_S11} memuat ketidakselarasan batas potongan audio atau teks rujukan berbahasa Inggris yang meningkatkan angka WER secara semu.
+  \item Penapisan laju pembelajaran hanya dijalankan selama lima \textit{epoch} dengan satu \textit{seed} acak, sehingga laju pembelajaran yang lebih kecil berpotensi tampak kurang kompetitif karena pembaruan bobotnya berlangsung lebih lambat.
+  \item Tahap inferensi masih mengandalkan dekode \textit{greedy} CTC tingkat karakter tanpa model bahasa eksternal, sehingga kesalahan satu karakter langsung menghasilkan kata tidak baku yang menurunkan WER.
+\end{enumerate}
 
 \section{Saran perbaikan}
-\textit{Bagian ini disiapkan untuk penulis Bab 8.}
+
+Berdasarkan pola kesalahan dan keterbatasan tersebut, tiga arah perbaikan direkomendasikan untuk pengembangan berikutnya:
+
+\begin{enumerate}
+  \item \textbf{Pembersihan data dan pembakuan ortografi.} Lakukan audit ulang keselarasan audio dan teks pada korpus G04 untuk membuang atau memperbaiki rujukan yang terpotong serta rujukan berbahasa Inggris pada penutur \kode{G04_S08} dan \kode{G04_S11}. Seragamkan pula aturan penandaan kata pengisi seperti \textit{ee} dan \textit{heumm}, serta susun kamus pemetaan varian lisan ke bentuk baku seperti \textit{abi} menjadi \textit{abdi} dan \textit{gitu} menjadi \textit{kitu}.
+  \item \textbf{Perbaikan protokol evaluasi.} Terapkan validasi silang lipat ganda berbasis penutur (\textit{speaker-grouped cross-validation}) dengan stratifikasi berdasarkan sumber korpus, kualitas rekaman, dan gaya bicara. Langkah ini mengurangi kepekaan metrik evaluasi terhadap karakteristik empat penutur tertentu pada satu pembagian tunggal.
+  \item \textbf{Integrasi model bahasa dan eksplorasi arsitektur.} Gunakan dekode pencarian berkas (\textit{beam search}) CTC yang dipadukan dengan model bahasa \(n\)-gram bahasa Sunda untuk memperbaiki peluruhan konsonan ganda, batas kata, dan ejaan kata jarang. Selain itu, uji arsitektur pengenal ucapan multibahasa yang lebih baru seperti Whisper atau Massively Multilingual Speech (MMS) pada pembagian penutur yang identik sebagai pembanding.
+\end{enumerate}

@@ -2,7 +2,75 @@
 \label{bab:hasil}
 
 \section{Hasil validasi dan uji}
-\textit{Bagian ini disiapkan untuk penulis Bab 6.}
+
+Pelatihan penuh model Cahya dengan laju pembelajaran \(3 \times 10^{-4}\) mencapai WER dan CER validasi terendah secara bersamaan pada \textit{epoch} ke-9 (langkah 405). Pelatihan berhenti otomatis pada \textit{epoch} ke-14 (langkah 630) setelah lima evaluasi tanpa penurunan WER dengan waktu komputasi 60,3 menit. Karena kandidat WER terbaik dan CER terbaik berasal dari \textit{epoch} yang sama, kedua kriteria pemilihan tersebut menghasilkan bobot model yang identik \cite{repoasr}.
+
+Pelatihan penuh model Indonesian NLP mencapai WER dan CER validasi terendah pada \textit{epoch} ke-14 (langkah 630). Penghentian dini mengakhiri pelatihan pada \textit{epoch} ke-19 (langkah 855) dengan total waktu 84,3 menit. Pada alur seleksi internal \kode{Trainer}, WER validasi turun dari \pct{58,13} pada \textit{epoch} pertama menjadi \pct{40,33} pada \textit{epoch} ke-14. Gambar~\ref{fig:kurva-latih} memperlihatkan perkembangan nilai kerugian (\textit{loss}), WER validasi, dan CER validasi sepanjang pelatihan model Indonesian NLP.
+
+\begin{figure}[!htbp]
+  \centering
+  \includegraphics[width=\textwidth]{training_curves.png}
+  \caption{Kurva kerugian pelatihan dan validasi, WER validasi, serta CER validasi selama penyetelan model Indonesian NLP.}
+  \label{fig:kurva-latih}
+\end{figure}
+
+Pada Gambar~\ref{fig:kurva-latih}, kerugian latih menurun konsisten dari 15,42 pada awal pelatihan menjadi 2,76 pada \textit{epoch} ke-19. Kerugian validasi mencapai titik terendah 4,47 pada \textit{epoch} ke-3, lalu bergerak naik hingga 6,48 pada \textit{epoch} ke-14 meskipun WER dan CER validasi terus membaik. Perilaku ini lazim pada pelatihan CTC karena distribusi probabilitas keluaran menjadi semakin tajam seiring konvergensi model. Setelah \textit{epoch} ke-14, nilai WER validasi mendatar di kisaran \pct{41,17} hingga \pct{45,13}.
+
+Kedua model hasil penyetelan kemudian dievaluasi ulang pada 442 ujaran validasi menggunakan alur inferensi standar. Tabel~\ref{tab:hasil-utama} membandingkan metrik ketat, metrik tanpa aksen, dan pengenalan huruf \textit{é} antara kondisi \textit{zero-shot} dan hasil penyetelan pada himpunan validasi serta uji \cite{repoasr}.
+
+\begin{table}[!htbp]
+  \centering\small
+  \caption{Perbandingan hasil evaluasi ulang model pada himpunan validasi (442 ujaran) dan himpunan uji (327 ujaran).}
+  \label{tab:hasil-utama}
+  \begin{tabular}{@{}llrrrrrr@{}}
+    \toprule
+    & & \multicolumn{2}{c}{Ketat (\pct{})} & \multicolumn{2}{c}{Tanpa aksen (\pct{})} & \multicolumn{2}{c}{Huruf \textit{é}} \\
+    \cmidrule(lr){3-4}\cmidrule(lr){5-6}\cmidrule(lr){7-8}
+    Himpunan & Model & WER & CER & WER & CER & Akurasi kata (\pct{}) & Prediksi \\
+    \midrule
+    Validasi & Cahya (\textit{zero-shot}) & 67,28 & 27,60 & 63,19 & 26,20 & 0,00 & 0 \\
+    Validasi & Cahya (\textit{epoch} 9) & 44,44 & 20,94 & 43,66 & 20,62 & 55,48 & 454 \\
+    Validasi & Indonesian NLP (\textit{zero-shot}) & 70,97 & 28,75 & 67,30 & 27,35 & 0,00 & 0 \\
+    Validasi & Indonesian NLP (\textit{epoch} 14) & 41,59 & 20,41 & 40,46 & 20,03 & 53,51 & 410 \\
+    \midrule
+    Uji & Indonesian NLP (\textit{zero-shot}) & 66,57 & 22,96 & 63,05 & 21,81 & 0,00 & 0 \\
+    Uji & Indonesian NLP (\textit{epoch} 14) & 41,06 & 14,73 & 39,91 & 14,42 & 74,65 & 344 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Pada kondisi \textit{zero-shot}, model Cahya mencatat WER validasi lebih rendah (\pct{67,28}) dibandingkan Indonesian NLP (\pct{70,97}). Akan tetapi, kedua model awal tersebut sama sekali belum menghasilkan karakter \textit{é} pada transkripsi validasi. Penyetelan menurunkan WER validasi model Cahya sebesar 22,84 poin persentase menjadi \pct{44,44} dan CER sebesar 6,66 poin menjadi \pct{20,94}. Model Cahya juga berhasil memprediksi 454 karakter \textit{é} dari 499 karakter rujukan dan mengenali tepat 253 dari 456 kata berhuruf \textit{é} (\pct{55,48}).
+
+Penyetelan memberikan penurunan galat yang lebih besar pada model Indonesian NLP. Nilai WER validasi turun 29,38 poin persentase menjadi \pct{41,59} dan CER turun 8,34 poin menjadi \pct{20,41}, dengan 244 dari 456 kata berhuruf \textit{é} dikenali tepat (\pct{53,51}). Model Indonesian NLP unggul 2,85 poin WER dan 0,53 poin CER atas model Cahya pada himpunan validasi. Oleh karena itu, model Indonesian NLP ditetapkan sebagai model akhir untuk dievaluasi pada himpunan uji.
+
+Pada 327 ujaran uji yang berasal dari empat penutur baru, model Indonesian NLP hasil penyetelan menurunkan WER dari \pct{66,57} menjadi \pct{41,06}. Nilai CER uji juga turun dari \pct{22,96} menjadi \pct{14,73}, atau berkurang 8,23 poin persentase. Pada penilaian tanpa aksen, WER uji turun dari \pct{63,05} menjadi \pct{39,91} dan CER turun dari \pct{21,81} menjadi \pct{14,42}. Akurasi kata berhuruf \textit{é} meningkat dari \pct{0,00} menjadi \pct{74,65} (215 dari 288 kata) dengan 344 prediksi karakter \textit{é} terhadap 313 karakter rujukan.
 
 \section{Contoh pengenalan ucapan}
-\textit{Bagian ini disiapkan untuk penulis Bab 6.}
+
+Tabel~\ref{tab:contoh-uji} menyajikan tujuh contoh transkripsi model Indonesian NLP hasil penyetelan pada himpunan uji \cite{repoasr}. Tiga baris pertama merupakan tiga berkas awal menurut urutan abjad untuk memberikan gambaran tanpa seleksi subjektif. Dua baris berikutnya mewakili sembilan ujaran uji yang berhasil dikenali sempurna dengan WER \pct{0,00}. Dua baris terakhir merupakan contoh ujaran dengan nilai CER tertinggi pada himpunan uji.
+
+\clearpage
+\begin{table}[!htbp]
+  \centering\small
+  \caption{Contoh perbandingan rujukan dan prediksi model Indonesian NLP pada himpunan uji.}
+  \label{tab:contoh-uji}
+  \begin{tabularx}{\textwidth}{@{}lrrYY@{}}
+    \toprule
+    Berkas & WER (\pct{}) & CER (\pct{}) & Rujukan & Prediksi \\
+    \midrule
+    \kode{G04_S07_T01_001.wav} & 84,62 & 29,27 & oke ee nami abdi mochamad ikhbar adiwinanggun tapi biasana abdi téh dipanggil ibay & h nami abdi mohor manik bara dipi nangkon a tapi biasana abdi teh dipangil ibai \\
+    \kode{G04_S07_T01_002.wav} & 50,00 & 18,45 & ayeuna abdi nuju kuliah di itb ee jurusan sistem tekologi informasi ee angkatan dua rebu dua puluh tilu & ayeuna abdi nuju kuliah di itb e jurusan sistém teknologi informasi angkatan bori gudua kelu tiga \\
+    \kode{G04_S07_T01_003.wav} & 81,82 & 26,09 & sapopoéna mungkin ee sami sareng anjeun salaku mahasiswa ogé gitu nya & nam a si popoéna mumungkin a sami sereng anjeun salaku masis ogé kitu nya \\
+    \midrule
+    \kode{S04_T01_004.wav} & 0,00 & 0,00 & soré balik ka imah kadang mampir heula ka imah batur ngobrol saeutik terus ibak dahar peuting bareng kulawarga & soré balik ka imah kadang mampir heula ka imah batur ngobrol saeutik terus ibak dahar peuting bareng kulawarga \\
+    \kode{S09_T01_001.wav} & 0,00 & 0,00 & biasana abdi hudang tabuh satengah lima tuluy abdi mandi sasarap jeung tatahar pikeun indit ka sakola & biasana abdi hudang tabuh satengah lima tuluy abdi mandi sasarap jeung tatahar pikeun indit ka sakola \\
+    \midrule
+    \kode{G04_S07_T02_006.wav} & 200,00 & 186,67 & ee abdi belajar & abdi belajar diaja ngaji ke tang apka \\
+    \kode{G04_S11_T01_0017.wav} & 100,00 & 111,76 & see you next time & abdi tara nyarios sunda \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+Pada ujaran penutur jati seperti \kode{S04_T01_004.wav} dan \kode{S09_T01_001.wav}, model mampu menyalin kalimat panjang beserta kata berhuruf \textit{é} (\textit{soré}) tanpa kesalahan karakter. Pada tiga ujaran awal \kode{G04_S07}, frasa umum seperti \textit{ayeuna abdi nuju kuliah di itb} dikenali secara akurat. Kesalahan pada ketiga ujaran tersebut terkonsentrasi pada nama diri (\textit{mochamad ikhbar adiwinanggun}), penyebutan angka tahun, serta kata pengisi \textit{ee} yang tidak diberi tanda kurung siku pada anotasi G04.
+
+Dua contoh dengan CER tertinggi menunjukkan adanya anomali anotasi pada sebagian rekaman korpus G04. Pada berkas \kode{G04_S07_T02_006.wav}, transkripsi rujukan hanya mencatat dua kata awal (\textit{ee abdi belajar}), sedangkan rekaman audio masih memuat kelanjutan ucapan penutur. Pada berkas \kode{G04_S11_T01_0017.wav}, rujukan tertulis dalam bahasa Inggris (\textit{see you next time}), sementara isi rekaman dan hasil prediksi model merupakan kalimat bahasa Sunda (\textit{abdi tara nyarios sunda}). Temuan ini dianalisis lebih lanjut pada Bab~\ref{bab:analisis}.

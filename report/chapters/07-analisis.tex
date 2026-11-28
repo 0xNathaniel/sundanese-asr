@@ -2,7 +2,125 @@
 \label{bab:analisis}
 
 \section{Pola kesalahan dan kosakata}
-\textit{Bagian ini disiapkan untuk penulis Bab 7.}
+
+Rincian operasi edit tingkat kata dan karakter pada model Indonesian NLP dianalisis untuk mengidentifikasi sumber utama galat. Tabel~\ref{tab:komposisi-edit} memuat jumlah substitusi, penghapusan, dan penyisipan pada himpunan validasi serta himpunan uji sebelum dan sesudah penyetelan \cite{repoasr}.
+
+\begin{table}[!htbp]
+  \centering\small
+  \caption{Komposisi operasi edit kata dan karakter model Indonesian NLP pada himpunan validasi dan uji.}
+  \label{tab:komposisi-edit}
+  \begin{tabular}{@{}llrrrrrrrr@{}}
+    \toprule
+    & & \multicolumn{4}{c}{Tingkat kata} & \multicolumn{4}{c}{Tingkat karakter} \\
+    \cmidrule(lr){3-6}\cmidrule(lr){7-10}
+    Himpunan & Kondisi & Rujukan & Sub. & Del. & Ins. & Rujukan & Sub. & Del. & Ins. \\
+    \midrule
+    Validasi & \textit{Zero-shot} & 4.746 & 2.573 & 511 & 284 & 28.958 & 3.518 & 2.653 & 2.153 \\
+    Validasi & Disetel (\textit{epoch} 14) & 4.746 & 1.383 & 308 & 283 & 28.958 & 2.462 & 1.960 & 1.489 \\
+    \midrule
+    Uji & \textit{Zero-shot} & 4.179 & 2.147 & 523 & 112 & 24.258 & 2.063 & 2.061 & 1.446 \\
+    Uji & Disetel (\textit{epoch} 14) & 4.179 & 1.334 & 215 & 167 & 24.258 & 1.272 & 1.250 & 1.052 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Pada himpunan uji setelah penyetelan, terdapat 1.716 operasi edit kata terhadap 4.179 kata rujukan. Substitusi mendominasi galat kata sebesar \pct{77,74} (1.334 kata), diikuti penghapusan sebesar \pct{12,53} (215 kata) dan penyisipan sebesar \pct{9,73} (167 kata). Dibandingkan kondisi \textit{zero-shot}, penyetelan memangkas substitusi kata uji sebesar \pct{37,87} dan penghapusan kata sebesar \pct{58,89}. Penyisipan kata sedikit bertambah dari 112 menjadi 167 karena model lebih aktif memecah segmen suara menjadi token kata.
+
+Pada tingkat karakter uji, jumlah substitusi (1.272 karakter) dan penghapusan (1.250 karakter) hampir seimbang, disertai 1.052 penyisipan dari total 24.258 karakter rujukan. Perbedaan satu huruf saja pada dekode CTC tingkat karakter sudah cukup untuk mengubah satu kata menjadi substitusi kata penuh. Hal tersebut menjelaskan mengapa nilai WER uji (\pct{41,06}) hampir tiga kali lipat nilai CER uji (\pct{14,73}).
+
+Tabel~\ref{tab:kesalahan-kata} menampilkan pasangan substitusi, kata terhapus, dan kata tersisip yang paling sering muncul pada himpunan uji \cite{repoasr}. Pola galat kata tersebut terbagi ke dalam empat fenomena linguistik dan ortografis utama.
+
+\begin{table}[!htbp]
+  \centering\small
+  \caption{Kesalahan kata yang paling sering terjadi pada himpunan uji untuk model Indonesian NLP hasil penyetelan.}
+  \label{tab:kesalahan-kata}
+  \begin{tabular}{@{}lrlrlr@{}}
+    \toprule
+    Substitusi (\(\text{rujukan} \rightarrow \text{prediksi}\)) & Jumlah & Kata terhapus & Jumlah & Kata tersisip & Jumlah \\
+    \midrule
+    \(\textit{abi} \rightarrow \textit{abdi}\) & 39 & \textit{ee} & 29 & \textit{ka} & 8 \\
+    \(\textit{ee} \rightarrow \textit{e}\) & 15 & \textit{nya} & 8 & \textit{a} & 4 \\
+    \(\textit{ee} \rightarrow \textit{a}\) & 15 & \textit{the} & 5 & \textit{di} & 4 \\
+    \(\textit{gitu} \rightarrow \textit{kitu}\) & 11 & \textit{di} & 4 & \textit{nu} & 4 \\
+    \(\textit{téh} \rightarrow \textit{teh}\) & 10 & \textit{ka} & 4 & \textit{nya} & 4 \\
+    \(\textit{unggal} \rightarrow \textit{ungal}\) & 9 & \textit{kitu} & 4 & \textit{sareng} & 3 \\
+    \(\textit{anjeunna} \rightarrow \textit{anjeuna}\) & 7 & \textit{mah} & 4 & \textit{e} & 3 \\
+    \(\textit{teh} \rightarrow \textit{téh}\) & 5 & \textit{in} & 4 & \textit{asa} & 2 \\
+    \(\textit{minggu} \rightarrow \textit{mingu}\) & 5 & \textit{heumm} & 4 & \textit{ke} & 2 \\
+    \(\textit{pun} \rightarrow \textit{mun}\) & 4 & \textit{nu} & 3 & \textit{téh} & 2 \\
+    \(\textit{sanggeus} \rightarrow \textit{sangeus}\) & 4 & \textit{lah} & 3 & \textit{anu} & 2 \\
+    \(\textit{kanggo} \rightarrow \textit{kango}\) & 4 & \textit{abdi} & 3 & \textit{mun} & 2 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Pola pertama adalah variasi antara bentuk lisan dan ejaan baku bahasa Sunda. Substitusi terbanyak pada himpunan uji adalah \(\textit{abi} \rightarrow \textit{abdi}\) sebanyak 39 kali karena penutur uji melafalkan bentuk lisan \textit{abi}, sedangkan model cenderung menulis bentuk baku \textit{abdi} yang dominan di data latih. Pola serupa tampak pada pasangan alih kode \(\textit{gitu} \rightarrow \textit{kitu}\) (11 kali) dan bentuk singkat \(\textit{kusabab} \rightarrow \textit{sabab}\) (3 kali).
+
+Pola kedua adalah peluruhan konsonan ganda pada kata seperti \(\textit{unggal} \rightarrow \textit{ungal}\) (9 kali), \(\textit{anjeunna} \rightarrow \textit{anjeuna}\) (7 kali), \(\textit{minggu} \rightarrow \textit{mingu}\) (5 kali), serta \(\textit{sanggeus} \rightarrow \textit{sangeus}\) (4 kali). Dalam aturan penggabungan CTC, dua huruf identik yang berurutan wajib dipisahkan oleh token kosong (\textit{blank}) agar tidak melebur menjadi satu huruf. Ketika durasi pelafalan konsonan ganda berlangsung singkat, model tidak menyisipkan token kosong di antaranya. Pola serupa juga mendominasi himpunan validasi melalui substitusi \(\textit{unggal} \rightarrow \textit{ungal}\) (12 kali) dan \(\textit{nganggo} \rightarrow \textit{ngango}\) (8 kali).
+
+Pola ketiga adalah pertukaran dua arah antara huruf \textit{é} dan \textit{e}, terutama pada partikel \(\textit{téh} \rightarrow \textit{teh}\) (10 kali) dan \(\textit{teh} \rightarrow \textit{téh}\) (5 kali). Inkonsistensi penulisan \textit{teh} dan \textit{téh} pada sebagian anotasi rujukan membuat kedua ejaan tersebut saling bersaing. Meskipun demikian, selisih antara WER ketat (\pct{41,06}) dan WER tanpa aksen (\pct{39,91}) pada himpunan uji hanya 1,15 poin persentase.
+
+Pola keempat berkaitan dengan kata pengisi, partikel pendek, dan anomali anotasi. Pada korpus G04, gumaman \textit{ee} dan \textit{heumm} ditulis langsung sebagai kata biasa tanpa tanda kurung siku sehingga tidak terhapus oleh normalisasi \kode{v1}. Akibatnya, token \textit{ee} menjadi kata yang paling sering terhapus (29 kali) atau berubah menjadi \textit{e} dan \textit{a} (masing-masing 15 kali). Selain itu, kata bahasa Inggris \textit{the} (5 kali) dan \textit{in} (4 kali) muncul pada daftar kata terhapus karena beberapa rujukan penutur \kode{G04_S11} berisi kalimat bahasa Inggris meskipun audionya berbahasa Sunda.
+
+Pengaruh cakupan kosakata latih terhadap tingkat kesalahan kata disajikan pada Tabel~\ref{tab:kata-jarang} \cite{repoasr}. Himpunan latih memuat 2.201 kata unik. Setiap kata rujukan pada himpunan validasi dan uji dikelompokkan berdasarkan keberadaannya di dalam kosakata latih tersebut.
+
+\begin{table}[!htbp]
+  \centering\small
+  \caption{Tingkat kesalahan kata berdasarkan ketercakupan dalam kosakata data latih (2.201 kata unik).}
+  \label{tab:kata-jarang}
+  \begin{tabular}{@{}llrrr@{}}
+    \toprule
+    Himpunan & Kelompok kosakata & Jumlah kata & Kata salah & Persentase salah (\pct{}) \\
+    \midrule
+    Validasi & Ada di data latih & 4.183 & 1.345 & 32,15 \\
+    Validasi & Tidak ada di data latih (\textit{out-of-vocabulary}) & 563 & 346 & 61,46 \\
+    \midrule
+    Uji & Ada di data latih & 3.456 & 1.091 & 31,57 \\
+    Uji & Tidak ada di data latih (\textit{out-of-vocabulary}) & 723 & 458 & 63,35 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Pada himpunan uji, sebanyak 723 dari 4.179 kata rujukan (\pct{17,30}) tidak pernah muncul dalam data latih. Proporsi kesalahan pada kata di luar kosakata latih tersebut mencapai \pct{63,35} (458 kata), atau dua kali lipat tingkat kesalahan pada kata yang sudah ada di data latih (\pct{31,57}). Perbandingan serupa terjadi pada himpunan validasi dengan tingkat kesalahan \pct{61,46} berbanding \pct{32,15}. Karena dekode \textit{greedy} CTC menyusun huruf tanpa model bahasa, nama diri, kata serapan, dan kata berimbuhan baru mudah mengalami selisih satu atau dua karakter.
 
 \section{Variasi antarpenutur dan kondisi rekaman}
-\textit{Bagian ini disiapkan untuk penulis Bab 7.}
+
+Tingkat kesalahan juga bervariasi tajam menurut karakteristik penutur dan rekaman. Tabel~\ref{tab:kelompok-uji} merangkum WER dan CER beserta ukuran sampel (\(n\)) untuk setiap kelompok penutur, status penutur jati, label kualitas rekaman, dan rentang durasi pada himpunan validasi serta himpunan uji \cite{repoasr}.
+
+\begin{table}[!htbp]
+  \centering\small
+  \caption{Rincian WER dan CER model Indonesian NLP menurut kelompok penutur, status penutur jati, kualitas audio, dan durasi ujaran.}
+  \label{tab:kelompok-uji}
+  \begin{tabular}{@{}llrrrrrrr@{}}
+    \toprule
+    & \multicolumn{4}{c}{Himpunan validasi (\(n = 442\))} & \multicolumn{4}{c}{Himpunan uji (\(n = 327\))} \\
+    \cmidrule(lr){2-5}\cmidrule(lr){6-9}
+    Kelompok & Nilai & \(n\) & WER (\pct{}) & CER (\pct{}) & Nilai & \(n\) & WER (\pct{}) & CER (\pct{}) \\
+    \midrule
+    Penutur & \kode{S02} & 69 & 13,66 & 2,52 & \kode{S04} & 69 & 19,73 & 4,28 \\
+    Penutur & \kode{G04_S05} & 84 & 31,67 & 10,37 & \kode{S09} & 61 & 24,80 & 4,98 \\
+    Penutur & \kode{S10} & 106 & 35,22 & 9,28 & \kode{G04_S07} & 115 & 59,84 & 25,35 \\
+    Penutur & \kode{G04_S08} & 183 & 82,26 & 58,83 & \kode{G04_S11} & 82 & 75,98 & 35,83 \\
+    \midrule
+    Penutur jati & \textit{Non-native} & 69 & 13,66 & 2,52 & \textit{Native} & 130 & 21,88 & 4,59 \\
+    Penutur jati & \textit{Native} & 106 & 35,22 & 9,28 & \textit{Unknown} & 197 & 64,40 & 28,28 \\
+    Penutur jati & \textit{Unknown} & 267 & 57,67 & 35,17 & & & & \\
+    \midrule
+    Kualitas & \textit{Good} & 440 & 41,58 & 20,43 & \textit{Good} & 278 & 37,76 & 12,67 \\
+    Kualitas & \textit{Acceptable} & 2 & 44,44 & 15,97 & \textit{Acceptable} & 49 & 62,43 & 29,01 \\
+    \midrule
+    Durasi & \(< 3\text{ s}\) & 79 & 89,37 & 65,49 & \(< 3\text{ s}\) & 1 & 62,50 & 37,84 \\
+    Durasi & \(3\text{ sampai }6\text{ s}\) & 138 & 67,08 & 43,82 & \(3\text{ sampai }6\text{ s}\) & 212 & 60,72 & 26,04 \\
+    Durasi & \(6\text{ sampai }10\text{ s}\) & 140 & 28,82 & 8,63 & \(6\text{ sampai }10\text{ s}\) & 79 & 19,82 & 4,30 \\
+    Durasi & \(> 10\text{ s}\) & 85 & 28,25 & 6,66 & \(> 10\text{ s}\) & 35 & 25,58 & 5,34 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Pada himpunan uji, terdapat kesenjangan mencolok antara penutur korpus kelompok dan penutur korpus G04. Dua penutur jati dari korpus kelompok, yakni \kode{S04} (\(n = 69\)) dan \kode{S09} (\(n = 61\)), masing-masing mencapai WER \pct{19,73} (CER \pct{4,28}) dan WER \pct{24,80} (CER \pct{4,98}). Sebaliknya, penutur \kode{G04_S07} (\(n = 115\)) mencatat WER \pct{59,84} dan \kode{G04_S11} (\(n = 82\)) mencatat WER \pct{75,98}. Pola serupa terjadi pada himpunan validasi ketika penutur \kode{G04_S08} (\(n = 183\)) mencatat WER \pct{82,26} dan CER \pct{58,83} akibat sejumlah segmen transkripsi yang tidak selaras dengan potongan audionya.
+
+Perbedaan berdasarkan status penutur jati berimpit langsung dengan asal korpus dan gaya bicara. Pada himpunan uji, kelompok \textit{Native} (\(n = 130\), gabungan \kode{S04} dan \kode{S09}) memperoleh WER \pct{21,88} dan CER \pct{4,59}, sedangkan kelompok \textit{Unknown} (\(n = 197\), seluruhnya dari G04) memperoleh WER \pct{64,40} dan CER \pct{28,28}. Pada himpunan validasi, penutur \textit{Non-native} \kode{S02} (\(n = 69\)) justru meraih WER terendah (\pct{13,66}) karena penutur tersebut membacakan naskah dengan artikulasi teratur, sementara penutur \textit{Native} \kode{S10} (\(n = 106\)) berbicara secara spontan dengan WER \pct{35,22}.
+
+Ditinjau dari mutu rekaman pada himpunan uji, 278 ujaran berlabel \textit{Good} menghasilkan WER \pct{37,76} dan CER \pct{12,67}. Sebaliknya, 49 ujaran berlabel \textit{Acceptable} yang memiliki derau latar atau artikulasi kurang jelas menghasilkan WER \pct{62,43} dan CER \pct{29,01}. Pada himpunan validasi, sampel berlabel \textit{Acceptable} hanya berjumlah dua ujaran (\(n = 2\)) sehingga perbandingannya terhadap label \textit{Good} (\(n = 440\)) tidak representatif secara statistik.
+
+Kelompok durasi memperlihatkan bahwa ujaran berdurasi 6 sampai 10 detik pada himpunan uji (\(n = 79\), WER \pct{19,82}) dan di atas 10 detik (\(n = 35\), WER \pct{25,58}) jauh lebih akurat daripada ujaran 3 sampai 6 detik (\(n = 212\), WER \pct{60,72}). Pola ini tidak semata-mata disebabkan oleh panjang konteks akustik, melainkan berbaur dengan sumber korpus. Rekaman korpus G04 dipotong menjadi segmen pendek berdurasi di bawah enam detik, sedangkan korpus kelompok memuat kalimat utuh yang lebih panjang dan bersih.

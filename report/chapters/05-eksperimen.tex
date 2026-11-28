@@ -2,7 +2,50 @@
 \label{bab:eksperimen}
 
 \section{Model awal dan skenario penyetelan}
-\textit{Bagian ini disiapkan untuk penulis Bab 5.}
+
+Eksperimen dilakukan dalam tiga tahap berurutan pada pembagian data berbasis penutur yang sama. Tahap pertama mengukur kinerja awal (\textit{zero-shot}) kedua model pralatih pada 442 ujaran validasi tanpa pelatihan tambahan. Tahap kedua menapis empat kandidat laju pembelajaran selama lima \textit{epoch} untuk setiap model. Tahap ketiga menyetel penuh masing-masing model menggunakan laju pembelajaran terbaik hingga konvergen \cite{repoasr}.
+
+Titik awal pertama adalah model Cahya yang sebelumnya disetel pada ujaran baca bahasa Sunda OpenSLR-44 \cite{cahyamodel,cahyaresep}. Kosakata aslinya belum memuat huruf \textit{é} sehingga satu token baru ditambahkan pada kepala CTC sebelum penyetelan. Titik awal kedua adalah model Indonesian NLP yang telah dilatih pada bahasa Indonesia, Jawa, dan Sunda \cite{nlpmodel}. Kosakata bawaannya sudah mencakup huruf \textit{é} sehingga arsitektur kepala keluarannya tidak diubah.
+
+Skenario penyetelan mengadaptasi resep pelatihan Cahya dengan beberapa penyesuaian untuk korpus ujaran spontan \cite{cahyaresep,repoasr}. Pemanasan laju pembelajaran ditetapkan sebesar \pct{10} dari total langkah karena satu \textit{epoch} hanya memuat sekitar 45 langkah pembaruan. Evaluasi dijalankan setiap akhir \textit{epoch} pada himpunan validasi yang penuturnya terpisah dari data latih. Pelatihan penuh dibatasi maksimum 50 \textit{epoch} dengan penghentian dini apabila WER validasi tidak membaik selama lima evaluasi berturut-turut.
+
+Penapisan laju pembelajaran menguji nilai \(3 \times 10^{-4}\), \(1 \times 10^{-4}\), \(3 \times 10^{-5}\), dan \(1 \times 10^{-5}\). Setiap kandidat dilatih selama lima \textit{epoch} dari bobot awal dan \textit{seed} 42 yang identik. Tabel~\ref{tab:sweep-lr} merangkum skor validasi terbaik selama lima \textit{epoch} beserta jumlah prediksi huruf \textit{é} pada akhir penapisan \cite{repoasr}.
+
+\begin{table}[!htbp]
+  \centering\small
+  \caption{Hasil penapisan empat laju pembelajaran selama lima \textit{epoch} pada himpunan validasi.}
+  \label{tab:sweep-lr}
+  \begin{tabular}{@{}llrrrrr@{}}
+    \toprule
+    Model & Laju pembelajaran & WER (\pct{}) & CER (\pct{}) & \textit{Epoch} terbaik & Akurasi kata \textit{é} (\pct{}) & Prediksi \textit{é} \\
+    \midrule
+    Cahya & \(3 \times 10^{-4}\) & 44,86 & 20,87 & 5 & 52,41 & 470 \\
+    Cahya & \(1 \times 10^{-4}\) & 53,33 & 22,61 & 4 & 0,44 & 2 \\
+    Cahya & \(3 \times 10^{-5}\) & 59,80 & 24,14 & 4 & 0,00 & 0 \\
+    Cahya & \(1 \times 10^{-5}\) & 65,32 & 25,91 & 5 & 0,00 & 0 \\
+    \midrule
+    Indonesian NLP & \(3 \times 10^{-4}\) & 40,46 & 20,06 & 5 & 56,36 & 430 \\
+    Indonesian NLP & \(1 \times 10^{-4}\) & 44,35 & 20,52 & 5 & 50,22 & 410 \\
+    Indonesian NLP & \(3 \times 10^{-5}\) & 48,97 & 21,53 & 4 & 54,17 & 602 \\
+    Indonesian NLP & \(1 \times 10^{-5}\) & 58,26 & 23,81 & 5 & 3,73 & 32 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Laju pembelajaran \(3 \times 10^{-4}\) menghasilkan WER dan CER validasi terendah pada kedua model. Pada model Cahya, tiga laju pembelajaran yang lebih kecil hampir tidak pernah menghasilkan huruf \textit{é} dalam lima \textit{epoch}. Baris baru pada kepala CTC untuk token \textit{é} diinisialisasi secara acak sehingga membutuhkan pembaruan gradien yang cukup besar. Berdasarkan hasil ini, nilai \(3 \times 10^{-4}\) dipilih untuk pelatihan penuh kedua model.
 
 \section{Protokol evaluasi}
-\textit{Bagian ini disiapkan untuk penulis Bab 5.}
+
+Kinerja pengenalan ucapan diukur pada tingkat korpus menggunakan \textit{Word Error Rate} (WER) dan \textit{Character Error Rate} (CER) melalui pustaka JiWER \cite{jiwer}. Seluruh ujaran dalam satu himpunan evaluasi disejajarkan terlebih dahulu terhadap transkripsi rujukan hasil normalisasi \kode{v1}. Nilai WER dan CER dihitung dari total substitusi (\(S\)), penghapusan (\(D\)), dan penyisipan (\(I\)) dibagi jumlah unit rujukan (\(N\)):
+\begin{equation}
+  \mathrm{WER} = \frac{S_k + D_k + I_k}{N_k}, \qquad
+  \mathrm{CER} = \frac{S_c + D_c + I_c}{N_c}.
+\end{equation}
+
+Himpunan validasi memuat 442 ujaran dengan 4.746 kata dan 28.958 karakter rujukan. Himpunan uji memuat 327 ujaran dengan 4.179 kata dan 24.258 karakter rujukan. Setiap himpunan dilaporkan dengan dua skema penilaian. Penilaian ketat (\textit{strict}) menjadi metrik utama dan menuntut huruf \textit{é} ditulis tepat sesuai rujukan.
+
+Penilaian tanpa aksen (\textit{folded}) menjadi metrik pendamping dengan menyamakan huruf \textit{é} menjadi \textit{e} pada rujukan maupun prediksi. Skema pendamping ini memisahkan kesalahan akustik dari penalti ketiadaan token \textit{é} pada kondisi \textit{zero-shot} model Cahya. Selain itu, protokol mencatat jumlah karakter \textit{é} yang diprediksi serta akurasi kata rujukan yang memuat huruf \textit{é}. Terdapat 456 kata rujukan berhuruf \textit{é} pada himpunan validasi dan 288 kata pada himpunan uji.
+
+Repositori mencatat dua alur penilaian yang menghasilkan selisih skor kecil pada bobot model yang sama \cite{repoasr}. Selama pelatihan, objek \kode{Trainer} menghitung WER dan CER per \textit{epoch} melalui \kode{CTCDataCollator} dan fungsi \kode{batch_decode} untuk memilih bobot terbaik. Setelah pelatihan selesai, model terpilih dievaluasi ulang melalui fungsi \kode{transcribe_files} yang mengurutkan panjang audio dan menyertakan \textit{attention mask}. Seluruh perbandingan akhir pada Bab~\ref{bab:hasil} menggunakan alur evaluasi ulang tersebut agar kondisi \textit{zero-shot} dan hasil penyetelan dinilai secara seragam.
+
+Pemilihan laju pembelajaran, penentuan \textit{epoch} terbaik, dan pemilihan model akhir dilakukan sepenuhnya menggunakan himpunan validasi. Model dengan WER validasi terendah setelah penyetelan penuh ditetapkan sebagai model akhir. Himpunan uji hanya dibuka dan dievaluasi satu kali pada model akhir tersebut bersama pembanding \textit{zero-shot}-nya. Protokol ini menjaga agar metrik uji mencerminkan kemampuan generalisasi pada penutur baru.
